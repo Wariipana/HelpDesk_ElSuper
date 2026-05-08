@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Ticket</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Registrar Ticket</h1>
+  <form action="/guardar-ticket" method="post">
+    <label for="titulo">Titulo:</label><br>
+    <input type="text" id="titulo" name="titulo" required><br><br>
+
+    <label for="descripcion">Descripcion:</label><br>
+    <textarea id="descripcion" name="descripcion" rows="4" required></textarea><br><br>
+
+    <label for="categoria">Categoria:</label><br>
+    <select id="categoria" name="categoria" required>
+      <option value="hardware">Hardware</option>
+      <option value="software">Software</option>
+      <option value="conectividad">Conectividad</option>
+      <option value="otro">Otro</option>
+    </select><br><br>
+
+    <label for="prioridad">Prioridad:</label><br>
+    <select id="prioridad" name="prioridad" required>
+      <option value="baja">Baja</option>
+      <option value="media" selected>Media</option>
+      <option value="alta">Alta</option>
+      <option value="critica">Critica</option>
+    </select><br><br>
+
+    <label for="equipo_afectado">Equipo afectado:</label><br>
+    <input type="text" id="equipo_afectado" name="equipo_afectado"><br><br>
+
+    <label for="cantidad_equipos">Cantidad de equipos:</label><br>
+    <input type="number" id="cantidad_equipos" name="cantidad_equipos" value="1" min="1"><br><br>
+
+    <label for="nombre_contacto">Nombre de contacto:</label><br>
+    <input type="text" id="nombre_contacto" name="nombre_contacto"><br><br>
+
+    <label for="telefono_contacto">Telefono de contacto:</label><br>
+    <input type="text" id="telefono_contacto" name="telefono_contacto"><br><br>
+
+    <label for="sede_id">ID de sede:</label><br>
+    <input type="number" id="sede_id" name="sede_id" required><br><br>
+
+    <label for="creado_por">ID de usuario que crea:</label><br>
+    <input type="number" id="creado_por" name="creado_por" required><br><br>
+
+    <input type="submit" value="Registrar">
+  </form>
+</body>
+</html>
