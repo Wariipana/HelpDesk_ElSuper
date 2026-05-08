@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Solicitud de Cliente</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Registrar Solicitud de Cliente</h1>
+  <form action="/guardar-solicitud-cliente" method="post">
+    <label for="nombre_cliente">Nombre del cliente:</label><br>
+    <input type="text" id="nombre_cliente" name="nombre_cliente" required><br><br>
+
+    <label for="apellido_cliente">Apellido del cliente:</label><br>
+    <input type="text" id="apellido_cliente" name="apellido_cliente" required><br><br>
+
+    <label for="tipo_documento">Tipo de documento:</label><br>
+    <select id="tipo_documento" name="tipo_documento" required>
+      <option value="dni">DNI</option>
+      <option value="ce">CE</option>
+      <option value="pasaporte">Pasaporte</option>
+      <option value="ruc">RUC</option>
+      <option value="ptp">PTP</option>
+      <option value="otro">Otro</option>
+    </select><br><br>
+
+    <label for="numero_documento">Numero de documento:</label><br>
+    <input type="text" id="numero_documento" name="numero_documento" required><br><br>
+
+    <label for="telefono_cliente">Telefono del cliente:</label><br>
+    <input type="text" id="telefono_cliente" name="telefono_cliente"><br><br>
+
+    <label for="email_cliente">Email del cliente:</label><br>
+    <input type="email" id="email_cliente" name="email_cliente"><br><br>
+
+    <label for="tipo">Tipo de solicitud:</label><br>
+    <select id="tipo" name="tipo" required>
+      <option value="alta">Alta</option>
+      <option value="baja">Baja</option>
+    </select><br><br>
+
+    <label for="motivo">Motivo:</label><br>
+    <textarea id="motivo" name="motivo" rows="4" required></textarea><br><br>
+
+    <label for="sede_id">ID de sede:</label><br>
+    <input type="number" id="sede_id" name="sede_id" required><br><br>
+
+    <label for="solicitado_por">ID de usuario que solicita:</label><br>
+    <input type="number" id="solicitado_por" name="solicitado_por" required><br><br>
+
+    <input type="submit" value="Registrar">
+  </form>
+</body>
+</html>
