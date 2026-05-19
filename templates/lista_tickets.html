@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Tickets</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      max-width: 1000px;
+    }
+    .header-list {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #222;
+      padding-bottom: 8px;
+    }
+    .header-list h1 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .btn-nuevo {
+      display: inline-block;
+      padding: 8px 20px;
+      background-color: #222;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .btn-nuevo:hover {
+      background-color: #444;
+    }
+    .tabla-contenedor {
+      background: #fff;
+      border: 1px solid #ddd;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background-color: #222;
+      color: #fff;
+      text-align: left;
+      padding: 12px 15px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      font-size: 0.95rem;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background-color: #f0f0f0;
+    }
+    .sin-registros {
+      text-align: center;
+      padding: 32px;
+      color: #888;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-list">
+    <h1>Tickets</h1>
+    <a href="{{ url_for('form_ticket') }}" class="btn-nuevo">+ Nuevo Ticket</a>
+  </div>
+
+  <div class="tabla-contenedor">
+    <table>
+      <thead>
+        <tr>
+          <th>Titulo</th>
+          <th>Categoria</th>
+          <th>Prioridad</th>
+          <th>Equipo Afectado</th>
+          <th>Contacto</th>
+          <th>Sede</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if tickets %}
+          {% for ticket in tickets %}
+          <tr>
+            <td>{{ ticket['titulo'] }}</td>
+            <td>{{ ticket['categoria'] }}</td>
+            <td>{{ ticket['prioridad'] }}</td>
+            <td>{{ ticket['equipo_afectado'] }}</td>
+            <td>{{ ticket['nombre_contacto'] }}</td>
+            <td>{{ ticket['sede_id'] }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="sin-registros">No existen registros</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

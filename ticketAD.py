@@ -49,3 +49,22 @@ def insertar_ticket(objTicket: Ticket):
         return False
     except pymysql.MySQLError as e:
         return e.args[1]
+
+
+def listar_tickets():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT `titulo`, `categoria`, `prioridad`, "
+                        "`equipo_afectado`, `nombre_contacto`, `sede_id` "
+                        "FROM `tickets`"
+                    )
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                    return result
+        return None
+    except:
+        return None
