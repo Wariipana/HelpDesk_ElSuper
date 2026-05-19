@@ -45,3 +45,22 @@ def insertar_movimiento_equipo(objMovimiento: MovimientoEquipo):
         return False
     except pymysql.MySQLError as e:
         return e.args[1]
+
+
+def listar_movimientos_equipo():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT `tipo`, `tipo_equipo`, `modelo`, "
+                        "`numero_serie`, `sede_id`, `responsable`, `fecha` "
+                        "FROM `movimientos_equipo`"
+                    )
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                    return result
+        return None
+    except:
+        return None
