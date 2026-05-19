@@ -49,3 +49,23 @@ def insertar_solicitud_cliente(objSolicitud: SolicitudCliente):
         return False
     except pymysql.MySQLError as e:
         return e.args[1]
+
+
+def listar_solicitudes_cliente():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT `nombre_cliente`, `apellido_cliente`, "
+                        "`tipo_documento`, `numero_documento`, "
+                        "`tipo`, `sede_id` "
+                        "FROM `solicitudes_cliente`"
+                    )
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                    return result
+        return None
+    except:
+        return None
