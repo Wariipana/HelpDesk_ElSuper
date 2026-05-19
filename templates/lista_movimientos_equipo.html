@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Movimientos de Equipo</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      max-width: 1100px;
+    }
+    .header-list {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #222;
+      padding-bottom: 8px;
+    }
+    .header-list h1 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .btn-nuevo {
+      display: inline-block;
+      padding: 8px 20px;
+      background-color: #222;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .btn-nuevo:hover {
+      background-color: #444;
+    }
+    .tabla-contenedor {
+      background: #fff;
+      border: 1px solid #ddd;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background-color: #222;
+      color: #fff;
+      text-align: left;
+      padding: 12px 15px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      font-size: 0.95rem;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background-color: #f0f0f0;
+    }
+    .sin-registros {
+      text-align: center;
+      padding: 32px;
+      color: #888;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-list">
+    <h1>Movimientos de Equipo</h1>
+    <a href="{{ url_for('form_movimiento_equipo') }}" class="btn-nuevo">+ Nuevo Movimiento</a>
+  </div>
+
+  <div class="tabla-contenedor">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Tipo Equipo</th>
+          <th>Modelo</th>
+          <th>N. Serie</th>
+          <th>Sede</th>
+          <th>Responsable</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if movimientos %}
+          {% for movimiento in movimientos %}
+          <tr>
+            <td>{{ movimiento['tipo'] }}</td>
+            <td>{{ movimiento['tipo_equipo'] }}</td>
+            <td>{{ movimiento['modelo'] }}</td>
+            <td>{{ movimiento['numero_serie'] }}</td>
+            <td>{{ movimiento['sede_id'] }}</td>
+            <td>{{ movimiento['responsable'] }}</td>
+            <td>{{ movimiento['fecha'] }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="7" class="sin-registros">No existen registros</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

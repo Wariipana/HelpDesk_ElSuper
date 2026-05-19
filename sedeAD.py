@@ -31,3 +31,18 @@ def insertar_sede(objSede: Sede):
         return False
     except pymysql.MySQLError as e:
         return e.args[1]
+
+
+def listar_sedes():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = "SELECT `nombre`, `direccion` FROM `sedes`"
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                    return result
+        return None
+    except:
+        return None

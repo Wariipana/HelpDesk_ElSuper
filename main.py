@@ -5,16 +5,16 @@ from loginClass import Login
 from loginAD import verificar_login
 
 from sedeClass import Sede
-from sedeAD import insertar_sede
+from sedeAD import insertar_sede, listar_sedes
 
 from ticketClass import Ticket
-from ticketAD import insertar_ticket
+from ticketAD import insertar_ticket, listar_tickets
 
 from solicitudClienteClass import SolicitudCliente
-from solicitudClienteAD import insertar_solicitud_cliente
+from solicitudClienteAD import insertar_solicitud_cliente, listar_solicitudes_cliente
 
 from movimientoEquipoClass import MovimientoEquipo
-from movimientoEquipoAD import insertar_movimiento_equipo
+from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo
 
 app = Flask(__name__)
 
@@ -78,7 +78,7 @@ def guardar_sede():
             res = insertar_sede(objSede)
 
             if res == True:
-                return '<p>Sede registrada exitosamente</p>'
+                return render_template('exito_sede.html')
             elif res == False:
                 return '<p>Problemas en la insercion</p>'
             else:
@@ -90,6 +90,12 @@ def guardar_sede():
     else:
 
         return redirect('/sede')
+
+
+@app.route('/listar-sedes')
+def listar_sedes_view():
+    resultado = listar_sedes()
+    return render_template('lista_sedes.html', sedes=resultado)
 
 
 @app.route('/ticket')
@@ -120,7 +126,7 @@ def guardar_ticket():
             res = insertar_ticket(objTicket)
 
             if res == True:
-                return '<p>Ticket registrado exitosamente</p>'
+                return render_template('exito_ticket.html')
             elif res == False:
                 return '<p>Problemas en la insercion</p>'
             else:
@@ -134,83 +140,7 @@ def guardar_ticket():
         return redirect('/ticket')
 
 
-@app.route('/solicitud-cliente')
-def form_solicitud_cliente():
-    return render_template('form_solicitud_cliente.html')
-
-
-@app.route('/guardar-solicitud-cliente', methods=['POST'])
-def guardar_solicitud_cliente():
-
-    if request.method == 'POST':
-
-        try:
-
-            objSolicitud = SolicitudCliente(
-                request.form.get('nombre_cliente'),
-                request.form.get('apellido_cliente'),
-                request.form.get('tipo_documento'),
-                request.form.get('numero_documento'),
-                request.form.get('telefono_cliente'),
-                request.form.get('email_cliente'),
-                request.form.get('tipo'),
-                request.form.get('motivo'),
-                request.form.get('sede_id'),
-                request.form.get('solicitado_por')
-            )
-
-            res = insertar_solicitud_cliente(objSolicitud)
-
-            if res == True:
-                return '<p>Solicitud registrada exitosamente</p>'
-            elif res == False:
-                return '<p>Problemas en la insercion</p>'
-            else:
-                return f'<p>{res}</p>'
-
-        except:
-            return '<p>Problemas en el procesamiento</p>'
-
-    else:
-
-        return redirect('/solicitud-cliente')
-
-
-@app.route('/movimiento-equipo')
-def form_movimiento_equipo():
-    return render_template('form_movimiento_equipo.html')
-
-
-@app.route('/guardar-movimiento-equipo', methods=['POST'])
-def guardar_movimiento_equipo():
-
-    if request.method == 'POST':
-
-        try:
-
-            objMovimiento = MovimientoEquipo(
-                request.form.get('tipo'),
-                request.form.get('tipo_equipo'),
-                request.form.get('modelo'),
-                request.form.get('numero_serie'),
-                request.form.get('sede_id'),
-                request.form.get('responsable'),
-                request.form.get('fecha'),
-                request.form.get('registrado_por')
-            )
-
-            res = insertar_movimiento_equipo(objMovimiento)
-
-            if res == True:
-                return '<p>Movimiento registrado exitosamente</p>'
-            elif res == False:
-                return '<p>Problemas en la insercion</p>'
-            else:
-                return f'<p>{res}</p>'
-
-        except:
-            return '<p>Problemas en el procesamiento</p>'
-
-    else:
-
-        return redirect('/movimiento-equipo')
+@app.route('/listar-tickets')
+def listar_tickets_view():
+    resultado = listar_tickets()
+    return render_template('lista_tickets.html', tickets=resultado)
