@@ -144,3 +144,97 @@ def guardar_ticket():
 def listar_tickets_view():
     resultado = listar_tickets()
     return render_template('lista_tickets.html', tickets=resultado)
+
+
+@app.route('/solicitud-cliente')
+def form_solicitud_cliente():
+    return render_template('form_solicitud_cliente.html')
+
+
+@app.route('/guardar-solicitud-cliente', methods=['POST'])
+def guardar_solicitud_cliente():
+
+    if request.method == 'POST':
+
+        try:
+
+            objSolicitud = SolicitudCliente(
+                request.form.get('nombre_cliente'),
+                request.form.get('apellido_cliente'),
+                request.form.get('tipo_documento'),
+                request.form.get('numero_documento'),
+                request.form.get('telefono_cliente'),
+                request.form.get('email_cliente'),
+                request.form.get('tipo'),
+                request.form.get('motivo'),
+                request.form.get('sede_id'),
+                request.form.get('solicitado_por')
+            )
+
+            res = insertar_solicitud_cliente(objSolicitud)
+
+            if res == True:
+                return render_template('exito_solicitud_cliente.html')
+            elif res == False:
+                return '<p>Problemas en la insercion</p>'
+            else:
+                return f'<p>{res}</p>'
+
+        except:
+            return '<p>Problemas en el procesamiento</p>'
+
+    else:
+
+        return redirect('/solicitud-cliente')
+
+
+@app.route('/listar-solicitudes-cliente')
+def listar_solicitudes_cliente_view():
+    resultado = listar_solicitudes_cliente()
+    return render_template('lista_solicitudes_cliente.html', solicitudes=resultado)
+
+
+@app.route('/movimiento-equipo')
+def form_movimiento_equipo():
+    return render_template('form_movimiento_equipo.html')
+
+
+@app.route('/guardar-movimiento-equipo', methods=['POST'])
+def guardar_movimiento_equipo():
+
+    if request.method == 'POST':
+
+        try:
+
+            objMovimiento = MovimientoEquipo(
+                request.form.get('tipo'),
+                request.form.get('tipo_equipo'),
+                request.form.get('modelo'),
+                request.form.get('numero_serie'),
+                request.form.get('sede_id'),
+                request.form.get('responsable'),
+                request.form.get('fecha'),
+                request.form.get('registrado_por')
+            )
+
+            res = insertar_movimiento_equipo(objMovimiento)
+
+            if res == True:
+                return render_template('exito_movimiento_equipo.html')
+            elif res == False:
+                return '<p>Problemas en la insercion</p>'
+            else:
+                return f'<p>{res}</p>'
+
+        except:
+            return '<p>Problemas en el procesamiento</p>'
+
+    else:
+
+        return redirect('/movimiento-equipo')
+
+
+@app.route('/listar-movimientos-equipo')
+def listar_movimientos_equipo_view():
+    resultado = listar_movimientos_equipo()
+    return render_template('lista_movimientos_equipo.html', movimientos=resultado)
