@@ -3,7 +3,7 @@ class SolicitudCliente:
     def __init__(self, nombre_cliente, apellido_cliente,
                  tipo_documento, numero_documento,
                  telefono_cliente, email_cliente,
-                 tipo, motivo, sede_id, solicitado_por):
+                 tipo, motivo, sede_id, solicitado_por, id=None):
         self.nombre_cliente    = nombre_cliente
         self.apellido_cliente  = apellido_cliente
         self.tipo_documento    = tipo_documento
@@ -14,3 +14,4 @@ class SolicitudCliente:
         self.motivo            = motivo
         self.sede_id           = sede_id
         self.solicitado_por    = solicitado_por
+        self.id                = id

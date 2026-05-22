@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Solicitudes de Cliente - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Solicitudes de Cliente</h1>
+      <a href="{{ url_for('form_solicitud_cliente') }}" class="btn-nuevo">+ Nueva Solicitud</a>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Tipo Documento</th>
+            <th>Numero Documento</th>
+            <th>Tipo</th>
+            <th>Sede</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if solicitudes %}
+            {% for solicitud in solicitudes %}
+            <tr>
+              <td>{{ solicitud['id'] }}</td>
+              <td>{{ solicitud['nombre_cliente'] }}</td>
+              <td>{{ solicitud['apellido_cliente'] }}</td>
+              <td>{{ solicitud['tipo_documento'] }}</td>
+              <td>{{ solicitud['numero_documento'] }}</td>
+              <td>{{ solicitud['tipo'] }}</td>
+              <td>{{ solicitud['sede_id'] }}</td>
+              <td>
+                <a href="{{ url_for('cargar_formulario_editar_solicitud_cliente', id_solicitud=solicitud['id']) }}" class="btn-editar">Editar</a>
+                <a href="{{ url_for('eliminar_solicitud_cliente_view', id_solicitud=solicitud['id']) }}"
+                   class="btn-eliminar"
+                   onclick="return confirm('¿Estas seguro de que deseas eliminar esta solicitud?');">
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="8" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
