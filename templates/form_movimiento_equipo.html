@@ -2,40 +2,43 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registrar Movimiento de Equipo</title>
+  <title>Registrar Movimiento de Equipo - ElSuper HelpDesk</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h1>Registrar Movimiento de Equipo</h1>
-  <form action="/guardar-movimiento-equipo" method="post">
-    <label for="tipo">Tipo de movimiento:</label><br>
-    <select id="tipo" name="tipo" required>
-      <option value="entrada">Entrada</option>
-      <option value="salida">Salida</option>
-    </select><br><br>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <h1>Registrar Movimiento de Equipo</h1>
+    <form action="/guardar-movimiento-equipo" method="post">
+      <label for="tipo">Tipo de movimiento:</label><br>
+      <select id="tipo" name="tipo" required>
+        <option value="entrada">Entrada</option>
+        <option value="salida">Salida</option>
+      </select><br>
 
-    <label for="tipo_equipo">Tipo de equipo:</label><br>
-    <input type="text" id="tipo_equipo" name="tipo_equipo" required><br><br>
+      <label for="tipo_equipo">Tipo de equipo:</label><br>
+      <input type="text" id="tipo_equipo" name="tipo_equipo" required><br>
 
-    <label for="modelo">Modelo:</label><br>
-    <input type="text" id="modelo" name="modelo" required><br><br>
+      <label for="modelo">Modelo:</label><br>
+      <input type="text" id="modelo" name="modelo" required><br>
 
-    <label for="numero_serie">Numero de serie:</label><br>
-    <input type="text" id="numero_serie" name="numero_serie" required><br><br>
+      <label for="numero_serie">Numero de serie:</label><br>
+      <input type="text" id="numero_serie" name="numero_serie" required><br>
 
-    <label for="sede_id">ID de sede:</label><br>
-    <input type="number" id="sede_id" name="sede_id" required><br><br>
+      <label for="sede_id">ID de sede:</label><br>
+      <input type="number" id="sede_id" name="sede_id" required><br>
 
-    <label for="responsable">Responsable:</label><br>
-    <input type="text" id="responsable" name="responsable" required><br><br>
+      <label for="responsable">Responsable:</label><br>
+      <input type="text" id="responsable" name="responsable" required><br>
 
-    <label for="fecha">Fecha del movimiento:</label><br>
-    <input type="date" id="fecha" name="fecha" required><br><br>
+      <label for="fecha">Fecha del movimiento:</label><br>
+      <input type="date" id="fecha" name="fecha" required><br>
 
-    <label for="registrado_por">ID de usuario que registra:</label><br>
-    <input type="number" id="registrado_por" name="registrado_por" required><br><br>
+      <label for="registrado_por">ID de usuario que registra:</label><br>
+      <input type="number" id="registrado_por" name="registrado_por" required><br>
 
-    <input type="submit" value="Registrar">
-  </form>
+      <input type="submit" value="Registrar">
+    </form>
+  </div>
 </body>
 </html>
