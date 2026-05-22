@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket Registrado</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .exito-card {
+      background: #fff;
+      padding: 2.5rem;
+      border: 1px solid #ddd;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .exito-card h1 {
+      border-bottom: 2px solid #222;
+      padding-bottom: 8px;
+      margin-bottom: 0.5rem;
+    }
+    .exito-card p {
+      color: #555;
+      margin-bottom: 1.5rem;
+    }
+    .btn-accion {
+      display: inline-block;
+      padding: 10px 24px;
+      background-color: #222;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      margin: 4px;
+    }
+    .btn-accion:hover {
+      background-color: #444;
+    }
+    .btn-secundario {
+      display: block;
+      margin-top: 1rem;
+      color: #222;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="exito-card">
+    <h1>Ticket Registrado</h1>
+    <p>El ticket ha sido registrado correctamente en el sistema.</p>
+    <a href="{{ url_for('listar_tickets_view') }}" class="btn-accion">Ver Tickets</a>
+    <a href="{{ url_for('form_ticket') }}" class="btn-secundario">Registrar otro ticket</a>
+  </div>
+</body>
+</html>

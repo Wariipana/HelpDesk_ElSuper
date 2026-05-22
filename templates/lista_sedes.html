@@ -2,99 +2,50 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Lista de Sedes</title>
+  <title>Lista de Sedes - ElSuper HelpDesk</title>
   <link rel="stylesheet" href="/static/style.css">
-  <style>
-    body {
-      max-width: 800px;
-    }
-    .header-list {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      border-bottom: 2px solid #222;
-      padding-bottom: 8px;
-    }
-    .header-list h1 {
-      border-bottom: none;
-      padding-bottom: 0;
-      margin-bottom: 0;
-    }
-    .btn-nuevo {
-      display: inline-block;
-      padding: 8px 20px;
-      background-color: #222;
-      color: #fff;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    .btn-nuevo:hover {
-      background-color: #444;
-    }
-    .tabla-contenedor {
-      background: #fff;
-      border: 1px solid #ddd;
-      overflow: hidden;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th {
-      background-color: #222;
-      color: #fff;
-      text-align: left;
-      padding: 12px 15px;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-    }
-    td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #ddd;
-      font-size: 0.95rem;
-    }
-    tr:last-child td {
-      border-bottom: none;
-    }
-    tr:hover td {
-      background-color: #f0f0f0;
-    }
-    .sin-registros {
-      text-align: center;
-      padding: 32px;
-      color: #888;
-      font-style: italic;
-    }
-  </style>
 </head>
 <body>
-  <div class="header-list">
-    <h1>Sedes</h1>
-    <a href="{{ url_for('form_sede') }}" class="btn-nuevo">+ Nueva Sede</a>
-  </div>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Sedes</h1>
+      <a href="{{ url_for('form_sede') }}" class="btn-nuevo">+ Nueva Sede</a>
+    </div>
 
-  <div class="tabla-contenedor">
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Direccion</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if sedes %}
-          {% for sede in sedes %}
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
           <tr>
-            <td>{{ sede['nombre'] }}</td>
-            <td>{{ sede['direccion'] }}</td>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Direccion</th>
+            <th>Acciones</th>
           </tr>
-          {% endfor %}
-        {% else %}
-          <tr><td colspan="2" class="sin-registros">No existen registros</td></tr>
-        {% endif %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% if sedes %}
+            {% for sede in sedes %}
+            <tr>
+              <td>{{ sede['id'] }}</td>
+              <td>{{ sede['nombre'] }}</td>
+              <td>{{ sede['direccion'] }}</td>
+              <td>
+                <a href="{{ url_for('cargar_formulario_editar_sede', id_sede=sede['id']) }}" class="btn-editar">Editar</a>
+                <a href="{{ url_for('eliminar_sede_view', id_sede=sede['id']) }}"
+                   class="btn-eliminar"
+                   onclick="return confirm('¿Estas seguro de que deseas eliminar esta sede?');">
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="4" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </body>
 </html>
