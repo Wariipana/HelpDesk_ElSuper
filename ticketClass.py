@@ -3,7 +3,7 @@ class Ticket:
     def __init__(self, titulo, descripcion, categoria, prioridad,
                  equipo_afectado, cantidad_equipos,
                  nombre_contacto, telefono_contacto,
-                 sede_id, creado_por):
+                 sede_id, creado_por, id=None):
         self.titulo            = titulo
         self.descripcion       = descripcion
         self.categoria         = categoria
@@ -14,3 +14,4 @@ class Ticket:
         self.telefono_contacto = telefono_contacto
         self.sede_id           = sede_id
         self.creado_por        = creado_por
+        self.id                = id
