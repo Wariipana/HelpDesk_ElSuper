@@ -44,7 +44,7 @@ def hacer_login():
             res = verificar_login(objLogin)
 
             if res:
-                return f'<p>Bienvenido, {res["nombre_completo"]} ({res["rol"]})</p>'
+                return redirect('/dashboard')
             elif res == False:
                 return '<p>Problemas en la conexion</p>'
             else:
@@ -56,6 +56,11 @@ def hacer_login():
     else:
 
         return redirect('/login')
+
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
 
 
 @app.route('/sede')

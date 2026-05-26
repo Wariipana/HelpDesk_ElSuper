@@ -1,21 +1,7 @@
 import pymysql
 
 from ticketClass import Ticket
-
-
-def obtenerconexion():
-    try:
-        connection = pymysql.connect(
-            host='trolley.proxy.rlwy.net',
-            port=23707,
-            user='root',
-            password='hkgInrsJKwLolWdhqHOnoPtLGIpQpVMe',
-            database='railway',
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        return connection
-    except pymysql.MySQLError as e:
-        return None
+from conexionBD import obtenerconexion
 
 
 def insertar_ticket(objTicket: Ticket):
@@ -140,20 +126,3 @@ def eliminar_ticket(p_id):
         return e.args[1]
 
 
-def listar_tickets():
-    try:
-        connection = obtenerconexion()
-        if connection:
-            with connection:
-                with connection.cursor() as cursor:
-                    sql = (
-                        "SELECT `titulo`, `categoria`, `prioridad`, "
-                        "`equipo_afectado`, `nombre_contacto`, `sede_id` "
-                        "FROM `tickets`"
-                    )
-                    cursor.execute(sql)
-                    result = cursor.fetchall()
-                    return result
-        return None
-    except:
-        return None
