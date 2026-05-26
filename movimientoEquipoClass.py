@@ -1,7 +1,7 @@
 class MovimientoEquipo:
 
     def __init__(self, tipo, tipo_equipo, modelo, numero_serie,
-                 sede_id, responsable, fecha, registrado_por):
+                 sede_id, responsable, fecha, registrado_por, id=None):
         self.tipo           = tipo
         self.tipo_equipo    = tipo_equipo
         self.modelo         = modelo
@@ -10,3 +10,4 @@ class MovimientoEquipo:
         self.responsable    = responsable
         self.fecha          = fecha
         self.registrado_por = registrado_por
+        self.id             = id

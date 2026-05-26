@@ -1,59 +1,349 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  font-family: sans-serif;
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 0 20px;
-  background-color: #f5f5f5;
-  color: #222;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f2f2f2;
+  color: #1a1a1a;
+  min-height: 100vh;
+  display: flex;
 }
 
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background-color: #8B0000;
+  color: #fff;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+.sidebar-brand {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid #6b0000;
+}
+
+.sidebar-brand .brand-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  display: block;
+}
+
+.sidebar-brand .brand-sub {
+  font-size: 0.68rem;
+  color: #777;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+  display: block;
+}
+
+.sidebar nav {
+  padding: 14px 0;
+}
+
+.sidebar nav .nav-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #ffaaaa;
+  padding: 12px 20px 5px;
+  display: block;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 9px 20px;
+  color: #ffe0e0;
+  text-decoration: none;
+  font-size: 0.87rem;
+  border-left: 3px solid transparent;
+  transition: background 0.12s, color 0.12s;
+}
+
+.sidebar nav a:hover {
+  background-color: #6b0000;
+  color: #fff;
+  border-left-color: #fff;
+}
+
+/* ── Contenido principal ── */
+.main-content {
+  margin-left: 220px;
+  flex: 1;
+  padding: 36px 40px;
+  max-width: 960px;
+}
+
+/* ── Tipografia ── */
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
   margin-bottom: 24px;
-  border-bottom: 2px solid #222;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #8B0000;
+  color: #111;
 }
 
+/* ── Formularios ── */
 form {
   background-color: #fff;
-  padding: 24px;
+  padding: 28px 32px;
   border: 1px solid #ddd;
+  max-width: 580px;
 }
 
 label {
-  font-weight: bold;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.83rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #333;
 }
 
 input[type="text"],
 input[type="number"],
 input[type="email"],
 input[type="date"],
+input[type="password"],
 select,
 textarea {
   width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  margin-bottom: 16px;
+  padding: 9px 11px;
+  margin-top: 5px;
+  margin-bottom: 18px;
   border: 1px solid #ccc;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-family: inherit;
-  box-sizing: border-box;
+  color: #111;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.12s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #8B0000;
 }
 
 textarea {
   resize: vertical;
+  min-height: 88px;
 }
 
 input[type="submit"] {
-  background-color: #222;
+  background-color: #8B0000;
   color: #fff;
   border: none;
-  padding: 10px 24px;
-  font-size: 0.95rem;
+  padding: 10px 28px;
+  font-size: 0.9rem;
+  font-family: inherit;
   cursor: pointer;
+  margin-top: 6px;
+  letter-spacing: 0.3px;
+  transition: background 0.12s;
 }
 
 input[type="submit"]:hover {
-  background-color: #444;
+  background-color: #6b0000;
+}
+
+/* ── Listados ── */
+.header-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #8B0000;
+  padding-bottom: 10px;
+}
+
+.header-list h1 {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.btn-nuevo {
+  display: inline-block;
+  padding: 8px 20px;
+  background-color: #8B0000;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background 0.12s;
+}
+
+.btn-nuevo:hover {
+  background-color: #6b0000;
+}
+
+.tabla-contenedor {
+  background: #fff;
+  border: 1px solid #ddd;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #8B0000;
+  color: #fff;
+  text-align: left;
+  padding: 11px 15px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+td {
+  padding: 11px 15px;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 0.9rem;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: #f5f5f5;
+}
+
+.sin-registros {
+  text-align: center;
+  padding: 32px;
+  color: #aaa;
+  font-style: italic;
+}
+
+/* ── Pantalla exito ── */
+.exito-card {
+  background: #fff;
+  padding: 2.5rem;
+  border: 1px solid #ddd;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.exito-card h1 {
+  border-bottom: 2px solid #8B0000;
+  padding-bottom: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.exito-card p {
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.btn-accion {
+  display: inline-block;
+  padding: 10px 24px;
+  background-color: #8B0000;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin: 4px;
+  transition: background 0.12s;
+}
+
+.btn-accion:hover {
+  background-color: #6b0000;
+}
+
+.btn-secundario {
+  display: block;
+  margin-top: 1rem;
+  color: #444;
+  text-decoration: none;
+  font-size: 0.87rem;
+}
+
+.btn-secundario:hover {
+  color: #111;
+}
+
+/* ── Botones de accion en tabla ── */
+.btn-editar {
+  display: inline-block;
+  padding: 5px 14px;
+  background-color: #5a7fbf;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  margin-right: 4px;
+  transition: background 0.12s;
+}
+
+.btn-editar:hover {
+  background-color: #3f5f9f;
+}
+
+.btn-eliminar {
+  display: inline-block;
+  padding: 5px 14px;
+  background-color: #8B0000;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: background 0.12s;
+}
+
+.btn-eliminar:hover {
+  background-color: #6b0000;
+}
+
+/* ── Login (sin sidebar) ── */
+.login-page {
+  min-height: 100vh;
+  background: #8B0000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: #fff;
+  padding: 40px 44px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-card .login-brand {
+  text-align: center;
+  margin-bottom: 28px;
+  border-bottom: 2px solid #8B0000;
+  padding-bottom: 20px;
+}
+
+.login-brand .brand-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #111;
+  display: block;
+}
+
+.login-brand .brand-sub {
+  font-size: 0.68rem;
+  color: #888;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: block;
 }
