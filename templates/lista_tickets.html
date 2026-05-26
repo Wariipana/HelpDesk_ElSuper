@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Tickets - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Tickets</h1>
+      <a href="{{ url_for('form_ticket') }}" class="btn-nuevo">+ Nuevo Ticket</a>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Titulo</th>
+            <th>Categoria</th>
+            <th>Prioridad</th>
+            <th>Equipo Afectado</th>
+            <th>Contacto</th>
+            <th>Sede</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if tickets %}
+            {% for ticket in tickets %}
+            <tr>
+              <td>{{ ticket['id'] }}</td>
+              <td>{{ ticket['titulo'] }}</td>
+              <td>{{ ticket['categoria'] }}</td>
+              <td>{{ ticket['prioridad'] }}</td>
+              <td>{{ ticket['equipo_afectado'] }}</td>
+              <td>{{ ticket['nombre_contacto'] }}</td>
+              <td>{{ ticket['sede_id'] }}</td>
+              <td>
+                <a href="{{ url_for('cargar_formulario_editar_ticket', id_ticket=ticket['id']) }}" class="btn-editar">Editar</a>
+                <a href="{{ url_for('eliminar_ticket_view', id_ticket=ticket['id']) }}"
+                   class="btn-eliminar"
+                   onclick="return confirm('¿Estas seguro de que deseas eliminar este ticket?');">
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="8" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

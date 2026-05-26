@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Movimientos de Equipo - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Movimientos de Equipo</h1>
+      <a href="{{ url_for('form_movimiento_equipo') }}" class="btn-nuevo">+ Nuevo Movimiento</a>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Tipo Equipo</th>
+            <th>Modelo</th>
+            <th>N. Serie</th>
+            <th>Sede</th>
+            <th>Responsable</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if movimientos %}
+            {% for movimiento in movimientos %}
+            <tr>
+              <td>{{ movimiento['id'] }}</td>
+              <td>{{ movimiento['tipo'] }}</td>
+              <td>{{ movimiento['tipo_equipo'] }}</td>
+              <td>{{ movimiento['modelo'] }}</td>
+              <td>{{ movimiento['numero_serie'] }}</td>
+              <td>{{ movimiento['sede_id'] }}</td>
+              <td>{{ movimiento['responsable'] }}</td>
+              <td>{{ movimiento['fecha'] }}</td>
+              <td>
+                <a href="{{ url_for('cargar_formulario_editar_movimiento_equipo', id_movimiento=movimiento['id']) }}" class="btn-editar">Editar</a>
+                <a href="{{ url_for('eliminar_movimiento_equipo_view', id_movimiento=movimiento['id']) }}"
+                   class="btn-eliminar"
+                   onclick="return confirm('¿Estas seguro de que deseas eliminar este movimiento?');">
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="9" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

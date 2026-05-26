@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Sedes - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Sedes</h1>
+      <a href="{{ url_for('form_sede') }}" class="btn-nuevo">+ Nueva Sede</a>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Direccion</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if sedes %}
+            {% for sede in sedes %}
+            <tr>
+              <td>{{ sede['id'] }}</td>
+              <td>{{ sede['nombre'] }}</td>
+              <td>{{ sede['direccion'] }}</td>
+              <td>
+                <a href="{{ url_for('cargar_formulario_editar_sede', id_sede=sede['id']) }}" class="btn-editar">Editar</a>
+                <a href="{{ url_for('eliminar_sede_view', id_sede=sede['id']) }}"
+                   class="btn-eliminar"
+                   onclick="return confirm('¿Estas seguro de que deseas eliminar esta sede?');">
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="4" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

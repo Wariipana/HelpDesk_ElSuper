@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Solicitud Registrada - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .exito-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
+    }
+  </style>
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="exito-wrap">
+      <div class="exito-card">
+        <h1>Solicitud Registrada</h1>
+        <p>La solicitud del cliente ha sido registrada correctamente en el sistema.</p>
+        <a href="{{ url_for('listar_solicitudes_cliente_view') }}" class="btn-accion">Ver Solicitudes</a>
+        <a href="{{ url_for('form_solicitud_cliente') }}" class="btn-secundario">Registrar otra solicitud</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

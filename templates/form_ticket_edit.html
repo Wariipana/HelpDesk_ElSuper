@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Ticket - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <h1>Editar Ticket</h1>
+    <form action="/actualizar-ticket" method="post">
+      <input type="hidden" name="id" value="{{ ticket['id'] }}">
+
+      <label for="titulo">Titulo:</label><br>
+      <input type="text" id="titulo" name="titulo" value="{{ ticket['titulo'] }}" required><br>
+
+      <label for="descripcion">Descripcion:</label><br>
+      <textarea id="descripcion" name="descripcion" rows="4" required>{{ ticket['descripcion'] }}</textarea><br>
+
+      <label for="categoria">Categoria:</label><br>
+      <select id="categoria" name="categoria" required>
+        <option value="hardware" {% if ticket['categoria'] == 'hardware' %}selected{% endif %}>Hardware</option>
+        <option value="software" {% if ticket['categoria'] == 'software' %}selected{% endif %}>Software</option>
+        <option value="conectividad" {% if ticket['categoria'] == 'conectividad' %}selected{% endif %}>Conectividad</option>
+        <option value="otro" {% if ticket['categoria'] == 'otro' %}selected{% endif %}>Otro</option>
+      </select><br>
+
+      <label for="prioridad">Prioridad:</label><br>
+      <select id="prioridad" name="prioridad" required>
+        <option value="baja" {% if ticket['prioridad'] == 'baja' %}selected{% endif %}>Baja</option>
+        <option value="media" {% if ticket['prioridad'] == 'media' %}selected{% endif %}>Media</option>
+        <option value="alta" {% if ticket['prioridad'] == 'alta' %}selected{% endif %}>Alta</option>
+        <option value="critica" {% if ticket['prioridad'] == 'critica' %}selected{% endif %}>Critica</option>
+      </select><br>
+
+      <label for="equipo_afectado">Equipo afectado:</label><br>
+      <input type="text" id="equipo_afectado" name="equipo_afectado" value="{{ ticket['equipo_afectado'] }}"><br>
+
+      <label for="cantidad_equipos">Cantidad de equipos:</label><br>
+      <input type="number" id="cantidad_equipos" name="cantidad_equipos" value="{{ ticket['cantidad_equipos'] }}" min="1"><br>
+
+      <label for="nombre_contacto">Nombre de contacto:</label><br>
+      <input type="text" id="nombre_contacto" name="nombre_contacto" value="{{ ticket['nombre_contacto'] }}"><br>
+
+      <label for="telefono_contacto">Telefono de contacto:</label><br>
+      <input type="text" id="telefono_contacto" name="telefono_contacto" value="{{ ticket['telefono_contacto'] }}"><br>
+
+      <label for="sede_id">ID de sede:</label><br>
+      <input type="number" id="sede_id" name="sede_id" value="{{ ticket['sede_id'] }}" required><br>
+
+      <label for="creado_por">ID de usuario que crea:</label><br>
+      <input type="number" id="creado_por" name="creado_por" value="{{ ticket['creado_por'] }}" required><br>
+
+      <input type="submit" value="Guardar Cambios">
+    </form>
+  </div>
+</body>
+</html>

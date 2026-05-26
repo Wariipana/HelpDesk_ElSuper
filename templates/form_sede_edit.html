@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Sede - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <h1>Editar Sede</h1>
+    <form action="/actualizar-sede" method="post">
+      <input type="hidden" name="id" value="{{ sede['id'] }}">
+
+      <label for="nombre">Nombre:</label><br>
+      <input type="text" id="nombre" name="nombre" value="{{ sede['nombre'] }}" required><br>
+
+      <label for="direccion">Direccion:</label><br>
+      <input type="text" id="direccion" name="direccion" value="{{ sede['direccion'] }}"><br>
+
+      <input type="submit" value="Guardar Cambios">
+    </form>
+  </div>
+</body>
+</html>
