@@ -3,7 +3,7 @@ import pymysql
 from ticketClass import Ticket
 from conexionBD import obtenerconexion
 
-
+# -----------------------------------------------
 def insertar_ticket(objTicket: Ticket):
     try:
         connection = obtenerconexion()

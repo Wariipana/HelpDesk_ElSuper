@@ -1,5 +1,6 @@
 class Ticket:
 
+# -------------------------------------------------------------------
     def __init__(self, titulo, descripcion, categoria, prioridad,
                  equipo_afectado, cantidad_equipos,
                  nombre_contacto, telefono_contacto,
