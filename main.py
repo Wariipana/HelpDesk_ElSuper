@@ -25,18 +25,6 @@ from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_eq
 
 app = Flask(__name__)
 
-
-# Cuando lo ocasiona el usuario
-@app.errorhandler(400)
-def error_400(e):
-    return render_template('error400.html'), 400
-
-# Cuando lo ocasiona el servidor
-@app.errorhandler(500)
-def error_500(e):
-    return render_template('error500.html'), 500
-
-
 # Cuando lo ocasiona el usuario
 @app.errorhandler(400)
 def error_400(e):
