@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error del Servidor - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="error-wrap">
+      <div class="error-card">
+        <div class="error-icon">🔧</div>
+        <h1>Error del Servidor</h1>
+        <p>Ocurrio un problema interno. El equipo tecnico ya fue notificado. Intenta de nuevo en unos momentos.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn-accion">Volver al Inicio</a>
+        <span class="error-code">Error 500: Internal Server Error</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

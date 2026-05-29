@@ -9,51 +9,93 @@
   {% include '_sidebar.html' %}
   <div class="main-content">
     <h1>Editar Ticket</h1>
-    <form action="/actualizar-ticket" method="post">
+    <form id="form-ticket-edit" action="/actualizar-ticket" method="post">
       <input type="hidden" name="id" value="{{ ticket['id'] }}">
 
       <label for="titulo">Titulo:</label><br>
-      <input type="text" id="titulo" name="titulo" value="{{ ticket['titulo'] }}" required><br>
+      <input type="text" id="titulo" name="titulo" value="{{ ticket['titulo'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="descripcion">Descripcion:</label><br>
-      <textarea id="descripcion" name="descripcion" rows="4" required>{{ ticket['descripcion'] }}</textarea><br>
+      <textarea id="descripcion" name="descripcion" rows="4" data-validar="requerido">{{ ticket['descripcion'] }}</textarea><br>
+      <span class="campo-error"></span>
 
       <label for="categoria">Categoria:</label><br>
-      <select id="categoria" name="categoria" required>
+      <select id="categoria" name="categoria" data-validar="requerido">
         <option value="hardware" {% if ticket['categoria'] == 'hardware' %}selected{% endif %}>Hardware</option>
         <option value="software" {% if ticket['categoria'] == 'software' %}selected{% endif %}>Software</option>
         <option value="conectividad" {% if ticket['categoria'] == 'conectividad' %}selected{% endif %}>Conectividad</option>
         <option value="otro" {% if ticket['categoria'] == 'otro' %}selected{% endif %}>Otro</option>
       </select><br>
+      <span class="campo-error"></span>
 
       <label for="prioridad">Prioridad:</label><br>
-      <select id="prioridad" name="prioridad" required>
+      <select id="prioridad" name="prioridad" data-validar="requerido">
         <option value="baja" {% if ticket['prioridad'] == 'baja' %}selected{% endif %}>Baja</option>
         <option value="media" {% if ticket['prioridad'] == 'media' %}selected{% endif %}>Media</option>
         <option value="alta" {% if ticket['prioridad'] == 'alta' %}selected{% endif %}>Alta</option>
         <option value="critica" {% if ticket['prioridad'] == 'critica' %}selected{% endif %}>Critica</option>
       </select><br>
+      <span class="campo-error"></span>
 
       <label for="equipo_afectado">Equipo afectado:</label><br>
-      <input type="text" id="equipo_afectado" name="equipo_afectado" value="{{ ticket['equipo_afectado'] }}"><br>
+      <input type="text" id="equipo_afectado" name="equipo_afectado" value="{{ ticket['equipo_afectado'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="cantidad_equipos">Cantidad de equipos:</label><br>
-      <input type="number" id="cantidad_equipos" name="cantidad_equipos" value="{{ ticket['cantidad_equipos'] }}" min="1"><br>
+      <input type="number" id="cantidad_equipos" name="cantidad_equipos" value="{{ ticket['cantidad_equipos'] }}" min="1" data-validar="entero-positivo"><br>
+      <span class="campo-error"></span>
 
       <label for="nombre_contacto">Nombre de contacto:</label><br>
-      <input type="text" id="nombre_contacto" name="nombre_contacto" value="{{ ticket['nombre_contacto'] }}"><br>
+      <input type="text" id="nombre_contacto" name="nombre_contacto" value="{{ ticket['nombre_contacto'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="telefono_contacto">Telefono de contacto:</label><br>
-      <input type="text" id="telefono_contacto" name="telefono_contacto" value="{{ ticket['telefono_contacto'] }}"><br>
+      <input type="text" id="telefono_contacto" name="telefono_contacto" value="{{ ticket['telefono_contacto'] }}" data-validar="telefono"><br>
+      <span class="campo-error"></span>
 
-      <label for="sede_id">ID de sede:</label><br>
-      <input type="number" id="sede_id" name="sede_id" value="{{ ticket['sede_id'] }}" required><br>
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">-- Selecciona una sede --</option>
+        {% for sede in sedes %}
+          <option value="{{ sede['id'] }}" {% if ticket['sede_id'] == sede['id'] %}selected{% endif %}>{{ sede['nombre'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
 
-      <label for="creado_por">ID de usuario que crea:</label><br>
-      <input type="number" id="creado_por" name="creado_por" value="{{ ticket['creado_por'] }}" required><br>
+      <label for="creado_por">Creado por:</label><br>
+      <select id="creado_por" name="creado_por" data-validar="requerido">
+        <option value="">-- Selecciona un usuario --</option>
+        {% for usuario in usuarios %}
+          <option value="{{ usuario['id'] }}" {% if ticket['creado_por'] == usuario['id'] %}selected{% endif %}>{{ usuario['username'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
 
       <input type="submit" value="Guardar Cambios">
     </form>
   </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-ticket-edit', '¿Esta seguro que desea guardar los cambios del ticket?');</script>
 </body>
 </html>

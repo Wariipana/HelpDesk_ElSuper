@@ -4,6 +4,20 @@ from loginClass import Login
 from conexionBD import obtenerconexion
 
 
+def listar_usuarios():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = "SELECT `id`, `username` FROM `usuarios` WHERE `activo` = 1"
+                    cursor.execute(sql)
+                    return cursor.fetchall()
+        return []
+    except:
+        return []
+
+
 def verificar_login(objLogin: Login):
     try:
         connection = obtenerconexion()

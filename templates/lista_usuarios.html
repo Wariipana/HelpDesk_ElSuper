@@ -2,15 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Lista de Tickets - ElSuper HelpDesk</title>
+  <title>Lista de Usuarios - ElSuper HelpDesk</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   {% include '_sidebar.html' %}
   <div class="main-content">
     <div class="header-list">
-      <h1>Tickets</h1>
-      <a href="{{ url_for('form_ticket') }}" class="btn-nuevo">+ Nuevo Ticket</a>
+      <h1>Usuarios</h1>
+      <a href="{{ url_for('form_usuario') }}" class="btn-nuevo">+ Nuevo Usuario</a>
     </div>
 
     <div class="tabla-contenedor">
@@ -18,38 +18,36 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Titulo</th>
-            <th>Categoria</th>
-            <th>Prioridad</th>
-            <th>Equipo Afectado</th>
-            <th>Contacto</th>
+            <th>Nombre Completo</th>
+            <th>Username</th>
+            <th>Rol</th>
             <th>Sede</th>
+            <th>Activo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {% if tickets %}
-            {% for ticket in tickets %}
+          {% if usuarios %}
+            {% for usuario in usuarios %}
             <tr>
-              <td>{{ ticket['id'] }}</td>
-              <td>{{ ticket['titulo'] }}</td>
-              <td>{{ ticket['categoria'] }}</td>
-              <td>{{ ticket['prioridad'] }}</td>
-              <td>{{ ticket['equipo_afectado'] }}</td>
-              <td>{{ ticket['nombre_contacto'] }}</td>
-              <td>{{ ticket['sede_id'] }}</td>
+              <td>{{ usuario['id'] }}</td>
+              <td>{{ usuario['nombre_completo'] }}</td>
+              <td>{{ usuario['username'] }}</td>
+              <td>{{ usuario['rol'] }}</td>
+              <td>{{ usuario['sede_id'] }}</td>
+              <td>{{ 'Si' if usuario['activo'] == 1 else 'No' }}</td>
               <td>
-                <a href="{{ url_for('cargar_formulario_editar_ticket', id_ticket=ticket['id']) }}" class="btn-editar">Editar</a>
+                <a href="{{ url_for('cargar_formulario_editar_usuario', id_usuario=usuario['id']) }}" class="btn-editar">Editar</a>
                 <a href="#"
                    class="btn-eliminar"
-                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar el ticket {{ ticket.titulo }}?', '{{ url_for("eliminar_ticket_view", id_ticket=ticket.id) }}'); return false;">
+                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar al usuario {{ usuario.username }}?', '{{ url_for("eliminar_usuario_view", id_usuario=usuario.id) }}'); return false;">
                   Eliminar
                 </a>
               </td>
             </tr>
             {% endfor %}
           {% else %}
-            <tr><td colspan="8" class="sin-registros">No existen registros</td></tr>
+            <tr><td colspan="7" class="sin-registros">No existen registros</td></tr>
           {% endif %}
         </tbody>
       </table>

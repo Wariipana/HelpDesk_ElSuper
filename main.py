@@ -2,7 +2,10 @@ import pymysql
 from flask import render_template, Flask, request, redirect
 
 from loginClass import Login
-from loginAD import verificar_login
+from loginAD import verificar_login, listar_usuarios as listar_usuarios_login
+
+from usuarioClass import Usuario
+from usuarioAD import insertar_usuario, listar_usuarios, obtener_usuario_x_id, actualizar_usuario, eliminar_usuario
 
 from sedeClass import Sede
 from sedeAD import insertar_sede, listar_sedes, obtener_sede_x_id, actualizar_sede, eliminar_sede
@@ -17,6 +20,17 @@ from movimientoEquipoClass import MovimientoEquipo
 from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo, obtener_movimiento_equipo_x_id, actualizar_movimiento_equipo, eliminar_movimiento_equipo
 
 app = Flask(__name__)
+
+
+# Cuando lo ocasiona el usuario
+@app.errorhandler(400)
+def error_400(e):
+    return render_template('error400.html'), 400
+
+# Cuando lo ocasiona el servidor
+@app.errorhandler(500)
+def error_500(e):
+    return render_template('error500.html'), 500
 
 
 @app.route('/')
@@ -46,12 +60,12 @@ def hacer_login():
             if res:
                 return redirect('/dashboard')
             elif res == False:
-                return '<p>Problemas en la conexion</p>'
+                return render_template('form_login.html', error='Problemas con la conexion. Intenta de nuevo.')
             else:
-                return '<p>Usuario o contrasena incorrectos</p>'
+                return render_template('form_login.html', error='Usuario o contrasena incorrectos.')
 
         except:
-            return '<p>Problemas en el procesamiento</p>'
+            return render_template('form_login.html', error='Ocurrio un error inesperado. Intenta de nuevo.')
 
     else:
 
@@ -145,14 +159,16 @@ def eliminar_sede_view(id_sede):
         res = eliminar_sede(id_sede)
         if res == True:
             return redirect('/listar-sedes')
-        return '<p>Problemas en la eliminacion</p>'
+        return render_template('error400.html', mensaje=res, url_volver='/listar-sedes'), 400
     except:
-        return '<p>Problemas en el procesamiento</p>'
+        return render_template('error500.html'), 500
 
 
 @app.route('/ticket')
 def form_ticket():
-    return render_template('form_ticket.html')
+    sedes = listar_sedes()
+    usuarios = listar_usuarios_login()
+    return render_template('form_ticket.html', sedes=sedes, usuarios=usuarios)
 
 
 @app.route('/guardar-ticket', methods=['POST'])
@@ -201,7 +217,9 @@ def listar_tickets_view():
 @app.route('/cargar-formulario-editar-ticket/<int:id_ticket>')
 def cargar_formulario_editar_ticket(id_ticket):
     resultado = obtener_ticket_x_id(id_ticket)
-    return render_template('form_ticket_edit.html', ticket=resultado[0])
+    sedes = listar_sedes()
+    usuarios = listar_usuarios_login()
+    return render_template('form_ticket_edit.html', ticket=resultado[0], sedes=sedes, usuarios=usuarios)
 
 
 @app.route('/actualizar-ticket', methods=['POST'])
@@ -248,14 +266,16 @@ def eliminar_ticket_view(id_ticket):
         res = eliminar_ticket(id_ticket)
         if res == True:
             return redirect('/listar-tickets')
-        return '<p>Problemas en la eliminacion</p>'
+        return render_template('error400.html', mensaje=res, url_volver='/listar-tickets'), 400
     except:
-        return '<p>Problemas en el procesamiento</p>'
+        return render_template('error500.html'), 500
 
 
 @app.route('/solicitud-cliente')
 def form_solicitud_cliente():
-    return render_template('form_solicitud_cliente.html')
+    sedes = listar_sedes()
+    usuarios = listar_usuarios_login()
+    return render_template('form_solicitud_cliente.html', sedes=sedes, usuarios=usuarios)
 
 
 @app.route('/guardar-solicitud-cliente', methods=['POST'])
@@ -304,7 +324,9 @@ def listar_solicitudes_cliente_view():
 @app.route('/cargar-formulario-editar-solicitud-cliente/<int:id_solicitud>')
 def cargar_formulario_editar_solicitud_cliente(id_solicitud):
     resultado = obtener_solicitud_cliente_x_id(id_solicitud)
-    return render_template('form_solicitud_cliente_edit.html', solicitud=resultado[0])
+    sedes = listar_sedes()
+    usuarios = listar_usuarios_login()
+    return render_template('form_solicitud_cliente_edit.html', solicitud=resultado[0], sedes=sedes, usuarios=usuarios)
 
 
 @app.route('/actualizar-solicitud-cliente', methods=['POST'])
@@ -351,14 +373,16 @@ def eliminar_solicitud_cliente_view(id_solicitud):
         res = eliminar_solicitud_cliente(id_solicitud)
         if res == True:
             return redirect('/listar-solicitudes-cliente')
-        return '<p>Problemas en la eliminacion</p>'
+        return render_template('error400.html', mensaje=res, url_volver='/listar-solicitudes-cliente'), 400
     except:
-        return '<p>Problemas en el procesamiento</p>'
+        return render_template('error500.html'), 500
 
 
 @app.route('/movimiento-equipo')
 def form_movimiento_equipo():
-    return render_template('form_movimiento_equipo.html')
+    sedes = listar_sedes()
+    usuarios = listar_usuarios_login()
+    return render_template('form_movimiento_equipo.html', sedes=sedes, usuarios=usuarios)
 
 
 @app.route('/guardar-movimiento-equipo', methods=['POST'])
@@ -405,7 +429,9 @@ def listar_movimientos_equipo_view():
 @app.route('/cargar-formulario-editar-movimiento-equipo/<int:id_movimiento>')
 def cargar_formulario_editar_movimiento_equipo(id_movimiento):
     resultado = obtener_movimiento_equipo_x_id(id_movimiento)
-    return render_template('form_movimiento_equipo_edit.html', movimiento=resultado[0])
+    sedes = listar_sedes()
+    usuarios = listar_usuarios_login()
+    return render_template('form_movimiento_equipo_edit.html', movimiento=resultado[0], sedes=sedes, usuarios=usuarios)
 
 
 @app.route('/actualizar-movimiento-equipo', methods=['POST'])
@@ -450,6 +476,103 @@ def eliminar_movimiento_equipo_view(id_movimiento):
         res = eliminar_movimiento_equipo(id_movimiento)
         if res == True:
             return redirect('/listar-movimientos-equipo')
-        return '<p>Problemas en la eliminacion</p>'
+        return render_template('error400.html', mensaje=res, url_volver='/listar-movimientos-equipo'), 400
     except:
-        return '<p>Problemas en el procesamiento</p>'
+        return render_template('error500.html'), 500
+
+
+@app.route('/usuario')
+def form_usuario():
+    sedes = listar_sedes()
+    return render_template('form_usuario.html', sedes=sedes)
+
+
+@app.route('/guardar-usuario', methods=['POST'])
+def guardar_usuario():
+
+    if request.method == 'POST':
+
+        try:
+
+            objUsuario = Usuario(
+                request.form.get('nombre_completo'),
+                request.form.get('username'),
+                request.form.get('password'),
+                request.form.get('rol'),
+                request.form.get('sede_id'),
+                request.form.get('activo'),
+            )
+
+            res = insertar_usuario(objUsuario)
+
+            if res == True:
+                return render_template('exito_usuario.html')
+            elif res == False:
+                return '<p>Problemas en la insercion</p>'
+            else:
+                return f'<p>{res}</p>'
+
+        except:
+            return '<p>Problemas en el procesamiento</p>'
+
+    else:
+
+        return redirect('/usuario')
+
+
+@app.route('/listar-usuarios')
+def listar_usuarios_view():
+    resultado = listar_usuarios()
+    return render_template('lista_usuarios.html', usuarios=resultado)
+
+
+@app.route('/cargar-formulario-editar-usuario/<int:id_usuario>')
+def cargar_formulario_editar_usuario(id_usuario):
+    resultado = obtener_usuario_x_id(id_usuario)
+    sedes = listar_sedes()
+    return render_template('form_usuario_edit.html', usuario=resultado[0], sedes=sedes)
+
+
+@app.route('/actualizar-usuario', methods=['POST'])
+def actualizar_usuario_view():
+
+    if request.method == 'POST':
+
+        try:
+
+            objUsuario = Usuario(
+                request.form.get('nombre_completo'),
+                request.form.get('username'),
+                request.form.get('password'),
+                request.form.get('rol'),
+                request.form.get('sede_id'),
+                request.form.get('activo'),
+                request.form.get('id'),
+            )
+
+            res = actualizar_usuario(objUsuario)
+
+            if res == True:
+                return render_template('exito_usuario.html')
+            elif res == False:
+                return '<p>Problemas en la actualizacion</p>'
+            else:
+                return f'<p>{res}</p>'
+
+        except:
+            return '<p>Problemas en el procesamiento</p>'
+
+    else:
+
+        return redirect('/listar-usuarios')
+
+
+@app.route('/eliminar-usuario/<int:id_usuario>')
+def eliminar_usuario_view(id_usuario):
+    try:
+        res = eliminar_usuario(id_usuario)
+        if res == True:
+            return redirect('/listar-usuarios')
+        return render_template('error400.html', mensaje=res, url_volver='/listar-usuarios'), 400
+    except:
+        return render_template('error500.html'), 500

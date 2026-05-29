@@ -9,15 +9,39 @@
   {% include '_sidebar.html' %}
   <div class="main-content">
     <h1>Registrar Sede</h1>
-    <form action="/guardar-sede" method="post">
+    <form id="form-sede" action="/guardar-sede" method="post">
       <label for="nombre">Nombre:</label><br>
-      <input type="text" id="nombre" name="nombre" required><br>
+      <input type="text" id="nombre" name="nombre" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="direccion">Direccion:</label><br>
-      <input type="text" id="direccion" name="direccion"><br>
+      <input type="text" id="direccion" name="direccion" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <input type="submit" value="Registrar">
     </form>
   </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-sede', '¿Esta seguro que desea guardar la sede?');</script>
 </body>
 </html>

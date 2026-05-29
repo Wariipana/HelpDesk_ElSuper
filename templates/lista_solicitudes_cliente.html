@@ -40,9 +40,9 @@
               <td>{{ solicitud['sede_id'] }}</td>
               <td>
                 <a href="{{ url_for('cargar_formulario_editar_solicitud_cliente', id_solicitud=solicitud['id']) }}" class="btn-editar">Editar</a>
-                <a href="{{ url_for('eliminar_solicitud_cliente_view', id_solicitud=solicitud['id']) }}"
+                <a href="#"
                    class="btn-eliminar"
-                   onclick="return confirm('¿Estas seguro de que deseas eliminar esta solicitud?');">
+                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar la solicitud de {{ solicitud.nombre_cliente }} {{ solicitud.apellido_cliente }}?', '{{ url_for("eliminar_solicitud_cliente_view", id_solicitud=solicitud.id) }}'); return false;">
                   Eliminar
                 </a>
               </td>
@@ -55,5 +55,18 @@
       </table>
     </div>
   </div>
+
+  <div id="modal-confirmar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar eliminacion</h3>
+      <p id="modal-confirmar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>
+        <a id="modal-confirmar-btn" href="#" class="btn-accion">Eliminar</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
 </body>
 </html>

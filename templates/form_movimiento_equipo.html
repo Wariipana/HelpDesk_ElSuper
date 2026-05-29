@@ -9,36 +9,76 @@
   {% include '_sidebar.html' %}
   <div class="main-content">
     <h1>Registrar Movimiento de Equipo</h1>
-    <form action="/guardar-movimiento-equipo" method="post">
+    <form id="form-movimiento-equipo" action="/guardar-movimiento-equipo" method="post">
       <label for="tipo">Tipo de movimiento:</label><br>
-      <select id="tipo" name="tipo" required>
+      <select id="tipo" name="tipo" data-validar="requerido">
         <option value="entrada">Entrada</option>
         <option value="salida">Salida</option>
       </select><br>
+      <span class="campo-error"></span>
 
       <label for="tipo_equipo">Tipo de equipo:</label><br>
-      <input type="text" id="tipo_equipo" name="tipo_equipo" required><br>
+      <input type="text" id="tipo_equipo" name="tipo_equipo" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="modelo">Modelo:</label><br>
-      <input type="text" id="modelo" name="modelo" required><br>
+      <input type="text" id="modelo" name="modelo" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="numero_serie">Numero de serie:</label><br>
-      <input type="text" id="numero_serie" name="numero_serie" required><br>
+      <input type="text" id="numero_serie" name="numero_serie" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
-      <label for="sede_id">ID de sede:</label><br>
-      <input type="number" id="sede_id" name="sede_id" required><br>
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">-- Selecciona una sede --</option>
+        {% for sede in sedes %}
+          <option value="{{ sede['id'] }}">{{ sede['nombre'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
 
       <label for="responsable">Responsable:</label><br>
-      <input type="text" id="responsable" name="responsable" required><br>
+      <input type="text" id="responsable" name="responsable" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="fecha">Fecha del movimiento:</label><br>
-      <input type="date" id="fecha" name="fecha" required><br>
+      <input type="date" id="fecha" name="fecha" data-validar="fecha"><br>
+      <span class="campo-error"></span>
 
-      <label for="registrado_por">ID de usuario que registra:</label><br>
-      <input type="number" id="registrado_por" name="registrado_por" required><br>
+      <label for="registrado_por">Registrado por:</label><br>
+      <select id="registrado_por" name="registrado_por" data-validar="requerido">
+        <option value="">-- Selecciona un usuario --</option>
+        {% for usuario in usuarios %}
+          <option value="{{ usuario['id'] }}">{{ usuario['username'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
 
       <input type="submit" value="Registrar">
     </form>
   </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-movimiento-equipo', '¿Esta seguro que desea registrar el movimiento?');</script>
 </body>
 </html>

@@ -79,5 +79,9 @@ def eliminar_sede(p_id):
                 connection.commit()
             return True
         return False
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1451:
+            return 'No se puede eliminar la sede porque tiene registros asociados (tickets, solicitudes o movimientos).'
+        return e.args[1]
     except pymysql.MySQLError as e:
         return e.args[1]
