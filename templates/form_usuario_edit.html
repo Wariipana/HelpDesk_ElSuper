@@ -26,9 +26,8 @@
 
       <label for="rol">Rol:</label><br>
       <select id="rol" name="rol" data-validar="requerido">
-        <option value="admin" {% if usuario['rol'] == 'admin' %}selected{% endif %}>Admin</option>
-        <option value="tecnico" {% if usuario['rol'] == 'tecnico' %}selected{% endif %}>Tecnico</option>
-        <option value="usuario" {% if usuario['rol'] == 'usuario' %}selected{% endif %}>Usuario</option>
+        <option value="admin_ti" {% if usuario['rol'] == 'admin_ti' %}selected{% endif %}>Admin TI</option>
+        <option value="admin_tienda" {% if usuario['rol'] == 'admin_tienda' %}selected{% endif %}>Admin Tienda</option>
       </select><br>
       <span class="campo-error"></span>
 
