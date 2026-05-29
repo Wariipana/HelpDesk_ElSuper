@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Usuario - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <h1>Editar Usuario</h1>
+    <form id="form-usuario-edit" action="/actualizar-usuario" method="post">
+      <input type="hidden" name="id" value="{{ usuario['id'] }}">
+
+      <label for="nombre_completo">Nombre completo:</label><br>
+      <input type="text" id="nombre_completo" name="nombre_completo" value="{{ usuario['nombre_completo'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="username">Username:</label><br>
+      <input type="text" id="username" name="username" value="{{ usuario['username'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="password">Contrasena:</label><br>
+      <input type="password" id="password" name="password" value="{{ usuario['password'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="rol">Rol:</label><br>
+      <select id="rol" name="rol" data-validar="requerido">
+        <option value="admin" {% if usuario['rol'] == 'admin' %}selected{% endif %}>Admin</option>
+        <option value="tecnico" {% if usuario['rol'] == 'tecnico' %}selected{% endif %}>Tecnico</option>
+        <option value="usuario" {% if usuario['rol'] == 'usuario' %}selected{% endif %}>Usuario</option>
+      </select><br>
+      <span class="campo-error"></span>
+
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">-- Selecciona una sede --</option>
+        {% for sede in sedes %}
+          <option value="{{ sede['id'] }}" {% if usuario['sede_id'] == sede['id'] %}selected{% endif %}>{{ sede['nombre'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
+
+      <label for="activo">Estado:</label><br>
+      <select id="activo" name="activo" data-validar="requerido">
+        <option value="1" {% if usuario['activo'] == 1 %}selected{% endif %}>Activo</option>
+        <option value="0" {% if usuario['activo'] == 0 %}selected{% endif %}>Inactivo</option>
+      </select><br>
+      <span class="campo-error"></span>
+
+      <input type="submit" value="Guardar Cambios">
+    </form>
+  </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-usuario-edit', '¿Esta seguro que desea guardar los cambios del usuario?');</script>
+</body>
+</html>

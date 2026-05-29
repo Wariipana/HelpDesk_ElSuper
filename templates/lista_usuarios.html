@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Usuarios - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Usuarios</h1>
+      <a href="{{ url_for('form_usuario') }}" class="btn-nuevo">+ Nuevo Usuario</a>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre Completo</th>
+            <th>Username</th>
+            <th>Rol</th>
+            <th>Sede</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if usuarios %}
+            {% for usuario in usuarios %}
+            <tr>
+              <td>{{ usuario['id'] }}</td>
+              <td>{{ usuario['nombre_completo'] }}</td>
+              <td>{{ usuario['username'] }}</td>
+              <td>{{ usuario['rol'] }}</td>
+              <td>{{ usuario['sede_id'] }}</td>
+              <td>{{ 'Si' if usuario['activo'] == 1 else 'No' }}</td>
+              <td>
+                <a href="{{ url_for('cargar_formulario_editar_usuario', id_usuario=usuario['id']) }}" class="btn-editar">Editar</a>
+                <a href="#"
+                   class="btn-eliminar"
+                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar al usuario {{ usuario.username }}?', '{{ url_for("eliminar_usuario_view", id_usuario=usuario.id) }}'); return false;">
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="modal-confirmar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar eliminacion</h3>
+      <p id="modal-confirmar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>
+        <a id="modal-confirmar-btn" href="#" class="btn-accion">Eliminar</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+</body>
+</html>

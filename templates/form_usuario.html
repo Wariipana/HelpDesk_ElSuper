@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Usuario - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <h1>Registrar Usuario</h1>
+    <form id="form-usuario" action="/guardar-usuario" method="post">
+      <label for="nombre_completo">Nombre completo:</label><br>
+      <input type="text" id="nombre_completo" name="nombre_completo" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="username">Username:</label><br>
+      <input type="text" id="username" name="username" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="password">Contrasena:</label><br>
+      <input type="password" id="password" name="password" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="rol">Rol:</label><br>
+      <select id="rol" name="rol" data-validar="requerido">
+        <option value="admin">Admin</option>
+        <option value="tecnico">Tecnico</option>
+        <option value="usuario">Usuario</option>
+      </select><br>
+      <span class="campo-error"></span>
+
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">-- Selecciona una sede --</option>
+        {% for sede in sedes %}
+          <option value="{{ sede['id'] }}">{{ sede['nombre'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
+
+      <label for="activo">Estado:</label><br>
+      <select id="activo" name="activo" data-validar="requerido">
+        <option value="1">Activo</option>
+        <option value="0">Inactivo</option>
+      </select><br>
+      <span class="campo-error"></span>
+
+      <input type="submit" value="Registrar">
+    </form>
+  </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-usuario', '¿Esta seguro que desea registrar el usuario?');</script>
+</body>
+</html>

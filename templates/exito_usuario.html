@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Usuario Registrado - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .exito-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
+    }
+  </style>
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="exito-wrap">
+      <div class="exito-card">
+        <h1>Usuario Registrado</h1>
+        <p>El usuario ha sido registrado correctamente en el sistema.</p>
+        <a href="{{ url_for('listar_usuarios_view') }}" class="btn-accion">Ver Usuarios</a>
+        <a href="{{ url_for('form_usuario') }}" class="btn-secundario">Registrar otro usuario</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
