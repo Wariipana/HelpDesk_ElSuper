@@ -9,17 +9,19 @@
   {% include '_sidebar.html' %}
   <div class="main-content">
     <h1>Editar Solicitud de Cliente</h1>
-    <form action="/actualizar-solicitud-cliente" method="post">
+    <form id="form-solicitud-cliente-edit" action="/actualizar-solicitud-cliente" method="post">
       <input type="hidden" name="id" value="{{ solicitud['id'] }}">
 
       <label for="nombre_cliente">Nombre del cliente:</label><br>
-      <input type="text" id="nombre_cliente" name="nombre_cliente" value="{{ solicitud['nombre_cliente'] }}" required><br>
+      <input type="text" id="nombre_cliente" name="nombre_cliente" value="{{ solicitud['nombre_cliente'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="apellido_cliente">Apellido del cliente:</label><br>
-      <input type="text" id="apellido_cliente" name="apellido_cliente" value="{{ solicitud['apellido_cliente'] }}" required><br>
+      <input type="text" id="apellido_cliente" name="apellido_cliente" value="{{ solicitud['apellido_cliente'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="tipo_documento">Tipo de documento:</label><br>
-      <select id="tipo_documento" name="tipo_documento" required>
+      <select id="tipo_documento" name="tipo_documento" data-validar="requerido">
         <option value="dni" {% if solicitud['tipo_documento'] == 'dni' %}selected{% endif %}>DNI</option>
         <option value="ce" {% if solicitud['tipo_documento'] == 'ce' %}selected{% endif %}>CE</option>
         <option value="pasaporte" {% if solicitud['tipo_documento'] == 'pasaporte' %}selected{% endif %}>Pasaporte</option>
@@ -27,33 +29,73 @@
         <option value="ptp" {% if solicitud['tipo_documento'] == 'ptp' %}selected{% endif %}>PTP</option>
         <option value="otro" {% if solicitud['tipo_documento'] == 'otro' %}selected{% endif %}>Otro</option>
       </select><br>
+      <span class="campo-error"></span>
 
       <label for="numero_documento">Numero de documento:</label><br>
-      <input type="text" id="numero_documento" name="numero_documento" value="{{ solicitud['numero_documento'] }}" required><br>
+      <input type="text" id="numero_documento" name="numero_documento" value="{{ solicitud['numero_documento'] }}" data-validar="documento"><br>
+      <span class="campo-error"></span>
 
       <label for="telefono_cliente">Telefono del cliente:</label><br>
-      <input type="text" id="telefono_cliente" name="telefono_cliente" value="{{ solicitud['telefono_cliente'] }}"><br>
+      <input type="text" id="telefono_cliente" name="telefono_cliente" value="{{ solicitud['telefono_cliente'] }}" data-validar="telefono"><br>
+      <span class="campo-error"></span>
 
       <label for="email_cliente">Email del cliente:</label><br>
-      <input type="email" id="email_cliente" name="email_cliente" value="{{ solicitud['email_cliente'] }}"><br>
+      <input type="email" id="email_cliente" name="email_cliente" value="{{ solicitud['email_cliente'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
 
       <label for="tipo">Tipo de solicitud:</label><br>
-      <select id="tipo" name="tipo" required>
+      <select id="tipo" name="tipo" data-validar="requerido">
         <option value="alta" {% if solicitud['tipo'] == 'alta' %}selected{% endif %}>Alta</option>
         <option value="baja" {% if solicitud['tipo'] == 'baja' %}selected{% endif %}>Baja</option>
       </select><br>
+      <span class="campo-error"></span>
 
       <label for="motivo">Motivo:</label><br>
-      <textarea id="motivo" name="motivo" rows="4" required>{{ solicitud['motivo'] }}</textarea><br>
+      <textarea id="motivo" name="motivo" rows="4" data-validar="requerido">{{ solicitud['motivo'] }}</textarea><br>
+      <span class="campo-error"></span>
 
-      <label for="sede_id">ID de sede:</label><br>
-      <input type="number" id="sede_id" name="sede_id" value="{{ solicitud['sede_id'] }}" required><br>
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">-- Selecciona una sede --</option>
+        {% for sede in sedes %}
+          <option value="{{ sede['id'] }}" {% if solicitud['sede_id'] == sede['id'] %}selected{% endif %}>{{ sede['nombre'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
 
-      <label for="solicitado_por">ID de usuario que solicita:</label><br>
-      <input type="number" id="solicitado_por" name="solicitado_por" value="{{ solicitud['solicitado_por'] }}" required><br>
+      <label for="solicitado_por">Solicitado por:</label><br>
+      <select id="solicitado_por" name="solicitado_por" data-validar="requerido">
+        <option value="">-- Selecciona un usuario --</option>
+        {% for usuario in usuarios %}
+          <option value="{{ usuario['id'] }}" {% if solicitud['solicitado_por'] == usuario['id'] %}selected{% endif %}>{{ usuario['username'] }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
 
       <input type="submit" value="Guardar Cambios">
     </form>
   </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-solicitud-cliente-edit', '¿Esta seguro que desea guardar los cambios de la solicitud?');</script>
 </body>
 </html>

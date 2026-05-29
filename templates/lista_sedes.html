@@ -32,9 +32,9 @@
               <td>{{ sede['direccion'] }}</td>
               <td>
                 <a href="{{ url_for('cargar_formulario_editar_sede', id_sede=sede['id']) }}" class="btn-editar">Editar</a>
-                <a href="{{ url_for('eliminar_sede_view', id_sede=sede['id']) }}"
+                <a href="#"
                    class="btn-eliminar"
-                   onclick="return confirm('¿Estas seguro de que deseas eliminar esta sede?');">
+                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar la sede {{ sede.nombre }}?', '{{ url_for("eliminar_sede_view", id_sede=sede.id) }}'); return false;">
                   Eliminar
                 </a>
               </td>
@@ -47,5 +47,18 @@
       </table>
     </div>
   </div>
+
+  <div id="modal-confirmar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar eliminacion</h3>
+      <p id="modal-confirmar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>
+        <a id="modal-confirmar-btn" href="#" class="btn-accion">Eliminar</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
 </body>
 </html>
