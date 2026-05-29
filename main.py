@@ -25,7 +25,6 @@ from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_eq
 
 app = Flask(__name__)
 
-
 # Cuando lo ocasiona el usuario
 @app.errorhandler(400)
 def error_400(e):
