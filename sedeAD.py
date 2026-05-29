@@ -4,7 +4,7 @@ from sedeClass import Sede
 from conexionBD import obtenerconexion
 
 
-def insertar_sede(objSede: Sede):
+def insertar_sede(objSede: Sede): 
     try:
         connection = obtenerconexion()
         if connection:
