@@ -36,18 +36,6 @@ def error_400(e):
 def error_500(e):
     return render_template('error500.html'), 500
 
-
-# Cuando lo ocasiona el usuario
-@app.errorhandler(400)
-def error_400(e):
-    return render_template('error400.html'), 400
-
-# Cuando lo ocasiona el servidor
-@app.errorhandler(500)
-def error_500(e):
-    return render_template('error500.html'), 500
-
-
 @app.route('/')
 def index():
     return redirect('/login')
@@ -76,15 +64,10 @@ def hacer_login():
                 return redirect('/dashboard')
             elif res == False:
                 return render_template('form_login.html', error='Problemas con la conexion. Intenta de nuevo.')
-                return render_template('form_login.html', error='Problemas con la conexion. Intenta de nuevo.')
             else:
                 return render_template('form_login.html', error='Usuario o contrasena incorrectos.')
-                return render_template('form_login.html', error='Usuario o contrasena incorrectos.')
-
         except:
             return render_template('form_login.html', error='Ocurrio un error inesperado. Intenta de nuevo.')
-            return render_template('form_login.html', error='Ocurrio un error inesperado. Intenta de nuevo.')
-
     else:
 
         return redirect('/login')
