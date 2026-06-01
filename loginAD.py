@@ -24,7 +24,13 @@ def verificar_login(objLogin: Login):
         if connection:
             with connection:
                 with connection.cursor() as cursor:
-                    sql = "SELECT * FROM `usuarios` WHERE `username` = %s AND `password` = %s AND `activo` = 1"
+                    sql = (
+                        "SELECT u.`id`, u.`nombre_completo`, u.`rol`, "
+                        "u.`sede_id`, s.`nombre` AS `sede` "
+                        "FROM `usuarios` u "
+                        "LEFT JOIN `sedes` s ON u.`sede_id` = s.`id` "
+                        "WHERE u.`username` = %s AND u.`password` = %s AND u.`activo` = 1"
+                    )
                     cursor.execute(sql, (objLogin.username, objLogin.password))
                     resultado = cursor.fetchone()
             return resultado

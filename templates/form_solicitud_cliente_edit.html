@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar Solicitud de Cliente - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -22,12 +24,12 @@
 
       <label for="tipo_documento">Tipo de documento:</label><br>
       <select id="tipo_documento" name="tipo_documento" data-validar="requerido">
-        <option value="dni" {% if solicitud['tipo_documento'] == 'dni' %}selected{% endif %}>DNI</option>
-        <option value="ce" {% if solicitud['tipo_documento'] == 'ce' %}selected{% endif %}>CE</option>
+        <option value="dni"       {% if solicitud['tipo_documento'] == 'dni'       %}selected{% endif %}>DNI</option>
+        <option value="ce"        {% if solicitud['tipo_documento'] == 'ce'        %}selected{% endif %}>CE</option>
         <option value="pasaporte" {% if solicitud['tipo_documento'] == 'pasaporte' %}selected{% endif %}>Pasaporte</option>
-        <option value="ruc" {% if solicitud['tipo_documento'] == 'ruc' %}selected{% endif %}>RUC</option>
-        <option value="ptp" {% if solicitud['tipo_documento'] == 'ptp' %}selected{% endif %}>PTP</option>
-        <option value="otro" {% if solicitud['tipo_documento'] == 'otro' %}selected{% endif %}>Otro</option>
+        <option value="ruc"       {% if solicitud['tipo_documento'] == 'ruc'       %}selected{% endif %}>RUC</option>
+        <option value="ptp"       {% if solicitud['tipo_documento'] == 'ptp'       %}selected{% endif %}>PTP</option>
+        <option value="otro"      {% if solicitud['tipo_documento'] == 'otro'      %}selected{% endif %}>Otro</option>
       </select><br>
       <span class="campo-error"></span>
 
@@ -54,23 +56,21 @@
       <textarea id="motivo" name="motivo" rows="4" data-validar="requerido">{{ solicitud['motivo'] }}</textarea><br>
       <span class="campo-error"></span>
 
-      <label for="sede_id">Sede:</label><br>
-      <select id="sede_id" name="sede_id" data-validar="requerido">
-        <option value="">-- Selecciona una sede --</option>
-        {% for sede in sedes %}
-          <option value="{{ sede['id'] }}" {% if solicitud['sede_id'] == sede['id'] %}selected{% endif %}>{{ sede['nombre'] }}</option>
-        {% endfor %}
-      </select><br>
-      <span class="campo-error"></span>
+      <div class="campo-sesion">
+        <span class="campo-sesion-label">Sede</span>
+        <span class="campo-sesion-valor">
+          <span class="material-symbols-outlined">location_on</span>
+          {{ session.get('usuario_sede') or '—' }}
+        </span>
+      </div>
 
-      <label for="solicitado_por">Solicitado por:</label><br>
-      <select id="solicitado_por" name="solicitado_por" data-validar="requerido">
-        <option value="">-- Selecciona un usuario --</option>
-        {% for usuario in usuarios %}
-          <option value="{{ usuario['id'] }}" {% if solicitud['solicitado_por'] == usuario['id'] %}selected{% endif %}>{{ usuario['username'] }}</option>
-        {% endfor %}
-      </select><br>
-      <span class="campo-error"></span>
+      <div class="campo-sesion">
+        <span class="campo-sesion-label">Registrado por</span>
+        <span class="campo-sesion-valor">
+          <span class="material-symbols-outlined">account_circle</span>
+          {{ session.get('usuario_nombre') or '—' }}
+        </span>
+      </div>
 
       <input type="submit" value="Guardar Cambios">
     </form>

@@ -37,8 +37,10 @@ def listar_usuarios():
             with connection:
                 with connection.cursor() as cursor:
                     sql = (
-                        "SELECT `id`, `nombre_completo`, `username`, `rol`, `sede_id`, `activo` "
-                        "FROM `usuarios`"
+                        "SELECT u.`id`, u.`nombre_completo`, u.`username`, u.`rol`, "
+                        "s.`nombre` AS `sede`, u.`activo` "
+                        "FROM `usuarios` u "
+                        "LEFT JOIN `sedes` s ON u.`sede_id` = s.`id`"
                     )
                     cursor.execute(sql)
                     return cursor.fetchall()

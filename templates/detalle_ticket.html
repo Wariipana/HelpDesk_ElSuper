@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket #{{ ticket['id'] }} - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+
+    <div class="header-list">
+      <h1>Ticket #{{ ticket['id'] }}</h1>
+      <a href="{{ url_for('listar_tickets_view') }}" class="btn-secundario-nav">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Volver a tickets
+      </a>
+    </div>
+
+    <div class="detalle-grid">
+
+      <!-- Columna izquierda: información del ticket -->
+      <div class="detalle-info">
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">confirmation_number</span>
+            Informacion del Ticket
+          </div>
+          <div class="detalle-card-body">
+
+            <div class="detalle-campo">
+              <span class="detalle-label">Titulo</span>
+              <span class="detalle-valor">{{ ticket['titulo'] }}</span>
+            </div>
+
+            <div class="detalle-campo">
+              <span class="detalle-label">Descripcion</span>
+              <span class="detalle-valor detalle-valor--descripcion">{{ ticket['descripcion'] }}</span>
+            </div>
+
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Categoria</span>
+                <span class="detalle-valor">{{ ticket['categoria'] | capitalize }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Prioridad</span>
+                <span class="detalle-valor">
+                  <span class="badge-prioridad badge-prioridad--{{ ticket['prioridad'] }}">
+                    {{ ticket['prioridad'] | capitalize }}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Estado actual</span>
+                <span class="detalle-valor">
+                  <span class="badge-estado badge-estado--{{ ticket['estado'] | replace(' ', '-') }}">
+                    {{ ticket['estado'] | capitalize }}
+                  </span>
+                </span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Sede</span>
+                <span class="detalle-valor">{{ ticket['sede'] or '—' }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">devices</span>
+            Equipo Afectado
+          </div>
+          <div class="detalle-card-body">
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Equipo</span>
+                <span class="detalle-valor">{{ ticket['equipo_afectado'] }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Cantidad</span>
+                <span class="detalle-valor">{{ ticket['cantidad_equipos'] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">contact_phone</span>
+            Contacto
+          </div>
+          <div class="detalle-card-body">
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Nombre</span>
+                <span class="detalle-valor">{{ ticket['nombre_contacto'] }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Telefono</span>
+                <span class="detalle-valor">{{ ticket['telefono_contacto'] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">schedule</span>
+            Fechas y Responsables
+          </div>
+          <div class="detalle-card-body">
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Creado por</span>
+                <span class="detalle-valor">{{ ticket['creado_por'] or '—' }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Creado el</span>
+                <span class="detalle-valor">{{ ticket['created_at'].strftime('%d/%m/%Y %H:%M') if ticket['created_at'] else '—' }}</span>
+              </div>
+            </div>
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Fecha limite</span>
+                <span class="detalle-valor">{{ ticket['fecha_limite'].strftime('%d/%m/%Y') if ticket['fecha_limite'] else '—' }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Ultima actualizacion</span>
+                <span class="detalle-valor">{{ ticket['updated_at'].strftime('%d/%m/%Y %H:%M') if ticket['updated_at'] else '—' }}</span>
+              </div>
+            </div>
+            {% if ticket['resuelto_por'] %}
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Resuelto por</span>
+                <span class="detalle-valor">{{ ticket['resuelto_por'] }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Resuelto el</span>
+                <span class="detalle-valor">{{ ticket['resuelto_at'].strftime('%d/%m/%Y %H:%M') if ticket['resuelto_at'] else '—' }}</span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha: panel de gestión -->
+      <div class="detalle-gestion">
+        <div class="detalle-card detalle-card--gestion">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">tune</span>
+            Gestionar Ticket
+          </div>
+          <div class="detalle-card-body">
+            <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
+
+              <label for="estado">Cambiar estado:</label>
+              <select id="estado" name="estado">
+                <option value="pendiente"   {% if ticket['estado'] == 'pendiente'   %}selected{% endif %}>Pendiente</option>
+                <option value="en progreso" {% if ticket['estado'] == 'en progreso' %}selected{% endif %}>En progreso</option>
+                <option value="resuelto"    {% if ticket['estado'] == 'resuelto'    %}selected{% endif %}>Resuelto</option>
+              </select>
+
+              <label for="comentario_admin">Comentario:</label>
+              <textarea id="comentario_admin" name="comentario_admin" rows="6" placeholder="Agrega un comentario sobre la gestion de este ticket...">{{ ticket['comentario_admin'] or '' }}</textarea>
+
+              <div class="gestion-nota">
+                <span class="material-symbols-outlined">info</span>
+                Al marcar como <strong>Resuelto</strong> se registrara tu usuario y la fecha/hora actual.
+              </div>
+
+              <input type="submit" value="Guardar cambios">
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

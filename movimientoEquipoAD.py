@@ -40,9 +40,12 @@ def listar_movimientos_equipo():
             with connection:
                 with connection.cursor() as cursor:
                     sql = (
-                        "SELECT `id`, `tipo`, `tipo_equipo`, `modelo`, "
-                        "`numero_serie`, `sede_id`, `responsable`, `fecha` "
-                        "FROM `movimientos_equipo`"
+                        "SELECT me.`id`, me.`tipo`, me.`tipo_equipo`, me.`modelo`, "
+                        "me.`numero_serie`, s.`nombre` AS `sede`, me.`responsable`, "
+                        "me.`fecha`, u.`username` AS `registrado_por` "
+                        "FROM `movimientos_equipo` me "
+                        "LEFT JOIN `sedes` s ON me.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` u ON me.`registrado_por` = u.`id`"
                     )
                     cursor.execute(sql)
                     result = cursor.fetchall()

@@ -1,11 +1,7 @@
 import pymysql
-from flask import render_template, Flask, request, redirect
+from flask import render_template, Flask, request, redirect, session
 
 from loginClass import Login
-from loginAD import verificar_login, listar_usuarios as listar_usuarios_login
-
-from usuarioClass import Usuario
-from usuarioAD import insertar_usuario, listar_usuarios, obtener_usuario_x_id, actualizar_usuario, eliminar_usuario
 from loginAD import verificar_login, listar_usuarios as listar_usuarios_login
 
 from usuarioClass import Usuario
@@ -15,15 +11,18 @@ from sedeClass import Sede
 from sedeAD import insertar_sede, listar_sedes, obtener_sede_x_id, actualizar_sede, eliminar_sede
 
 from ticketClass import Ticket
-from ticketAD import insertar_ticket, listar_tickets, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket
+from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, gestionar_ticket
 
 from solicitudClienteClass import SolicitudCliente
-from solicitudClienteAD import insertar_solicitud_cliente, listar_solicitudes_cliente, obtener_solicitud_cliente_x_id, actualizar_solicitud_cliente, eliminar_solicitud_cliente
+from solicitudClienteAD import (insertar_solicitud_cliente, listar_solicitudes_cliente,
+    listar_solicitudes_x_sede, obtener_solicitud_cliente_x_id, obtener_solicitud_detalle,
+    actualizar_solicitud_cliente, eliminar_solicitud_cliente, gestionar_solicitud)
 
 from movimientoEquipoClass import MovimientoEquipo
 from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo, obtener_movimiento_equipo_x_id, actualizar_movimiento_equipo, eliminar_movimiento_equipo
 
 app = Flask(__name__)
+app.secret_key = 'elsuper_helpdesk_secret_2024'
 
 # Cuando lo ocasiona el usuario
 @app.errorhandler(400)
@@ -60,6 +59,11 @@ def hacer_login():
             res = verificar_login(objLogin)
 
             if res:
+                session['usuario_id']      = res['id']
+                session['usuario_nombre']  = res['nombre_completo']
+                session['usuario_rol']     = res['rol']
+                session['usuario_sede_id'] = res['sede_id']
+                session['usuario_sede']    = res['sede']
                 return redirect('/dashboard')
             elif res == False:
                 return render_template('form_login.html', error='Problemas con la conexion. Intenta de nuevo.')
@@ -75,6 +79,12 @@ def hacer_login():
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 
 
 @app.route('/sede')
@@ -166,9 +176,7 @@ def eliminar_sede_view(id_sede):
 
 @app.route('/ticket')
 def form_ticket():
-    sedes = listar_sedes()
-    usuarios = listar_usuarios_login()
-    return render_template('form_ticket.html', sedes=sedes, usuarios=usuarios)
+    return render_template('form_ticket.html')
 
 
 @app.route('/guardar-ticket', methods=['POST'])
@@ -187,8 +195,8 @@ def guardar_ticket():
                 request.form.get('cantidad_equipos'),
                 request.form.get('nombre_contacto'),
                 request.form.get('telefono_contacto'),
-                request.form.get('sede_id'),
-                request.form.get('creado_por')
+                session.get('usuario_sede_id'),
+                session.get('usuario_id')
             )
 
             res = insertar_ticket(objTicket)
@@ -210,16 +218,18 @@ def guardar_ticket():
 
 @app.route('/listar-tickets')
 def listar_tickets_view():
-    resultado = listar_tickets()
+    rol = session.get('usuario_rol')
+    if rol == 'admin_tienda':
+        resultado = listar_tickets_x_sede(session.get('usuario_sede_id'))
+    else:
+        resultado = listar_tickets()
     return render_template('lista_tickets.html', tickets=resultado)
 
 
 @app.route('/cargar-formulario-editar-ticket/<int:id_ticket>')
 def cargar_formulario_editar_ticket(id_ticket):
     resultado = obtener_ticket_x_id(id_ticket)
-    sedes = listar_sedes()
-    usuarios = listar_usuarios_login()
-    return render_template('form_ticket_edit.html', ticket=resultado[0], sedes=sedes, usuarios=usuarios)
+    return render_template('form_ticket_edit.html', ticket=resultado[0])
 
 
 @app.route('/actualizar-ticket', methods=['POST'])
@@ -238,8 +248,8 @@ def actualizar_ticket_view():
                 request.form.get('cantidad_equipos'),
                 request.form.get('nombre_contacto'),
                 request.form.get('telefono_contacto'),
-                request.form.get('sede_id'),
-                request.form.get('creado_por'),
+                session.get('usuario_sede_id'),
+                session.get('usuario_id'),
                 request.form.get('id')
             )
 
@@ -271,11 +281,30 @@ def eliminar_ticket_view(id_ticket):
         return render_template('error500.html'), 500
 
 
+@app.route('/gestionar-ticket/<int:id_ticket>')
+def gestionar_ticket_view(id_ticket):
+    ticket = obtener_ticket_detalle(id_ticket)
+    if not ticket:
+        return render_template('error400.html', mensaje='Ticket no encontrado.', url_volver='/listar-tickets'), 400
+    return render_template('detalle_ticket.html', ticket=ticket)
+
+
+@app.route('/gestionar-ticket/<int:id_ticket>', methods=['POST'])
+def guardar_gestion_ticket(id_ticket):
+    try:
+        estado     = request.form.get('estado')
+        comentario = request.form.get('comentario_admin', '').strip()
+        res = gestionar_ticket(id_ticket, estado, comentario, session.get('usuario_id'))
+        if res == True:
+            return redirect('/listar-tickets')
+        return render_template('error400.html', mensaje=res, url_volver='/listar-tickets'), 400
+    except:
+        return render_template('error500.html'), 500
+
+
 @app.route('/solicitud-cliente')
 def form_solicitud_cliente():
-    sedes = listar_sedes()
-    usuarios = listar_usuarios_login()
-    return render_template('form_solicitud_cliente.html', sedes=sedes, usuarios=usuarios)
+    return render_template('form_solicitud_cliente.html')
 
 
 @app.route('/guardar-solicitud-cliente', methods=['POST'])
@@ -294,8 +323,8 @@ def guardar_solicitud_cliente():
                 request.form.get('email_cliente'),
                 request.form.get('tipo'),
                 request.form.get('motivo'),
-                request.form.get('sede_id'),
-                request.form.get('solicitado_por')
+                session.get('usuario_sede_id'),
+                session.get('usuario_id')
             )
 
             res = insertar_solicitud_cliente(objSolicitud)
@@ -317,16 +346,18 @@ def guardar_solicitud_cliente():
 
 @app.route('/listar-solicitudes-cliente')
 def listar_solicitudes_cliente_view():
-    resultado = listar_solicitudes_cliente()
+    rol = session.get('usuario_rol')
+    if rol == 'admin_tienda':
+        resultado = listar_solicitudes_x_sede(session.get('usuario_sede_id'))
+    else:
+        resultado = listar_solicitudes_cliente()
     return render_template('lista_solicitudes_cliente.html', solicitudes=resultado)
 
 
 @app.route('/cargar-formulario-editar-solicitud-cliente/<int:id_solicitud>')
 def cargar_formulario_editar_solicitud_cliente(id_solicitud):
     resultado = obtener_solicitud_cliente_x_id(id_solicitud)
-    sedes = listar_sedes()
-    usuarios = listar_usuarios_login()
-    return render_template('form_solicitud_cliente_edit.html', solicitud=resultado[0], sedes=sedes, usuarios=usuarios)
+    return render_template('form_solicitud_cliente_edit.html', solicitud=resultado[0])
 
 
 @app.route('/actualizar-solicitud-cliente', methods=['POST'])
@@ -345,8 +376,8 @@ def actualizar_solicitud_cliente_view():
                 request.form.get('email_cliente'),
                 request.form.get('tipo'),
                 request.form.get('motivo'),
-                request.form.get('sede_id'),
-                request.form.get('solicitado_por'),
+                session.get('usuario_sede_id'),
+                session.get('usuario_id'),
                 request.form.get('id')
             )
 
@@ -378,11 +409,31 @@ def eliminar_solicitud_cliente_view(id_solicitud):
         return render_template('error500.html'), 500
 
 
+@app.route('/gestionar-solicitud/<int:id_solicitud>')
+def gestionar_solicitud_view(id_solicitud):
+    solicitud = obtener_solicitud_detalle(id_solicitud)
+    if not solicitud:
+        return render_template('error400.html', mensaje='Solicitud no encontrada.', url_volver='/listar-solicitudes-cliente'), 400
+    return render_template('detalle_solicitud_cliente.html', solicitud=solicitud)
+
+
+@app.route('/gestionar-solicitud/<int:id_solicitud>', methods=['POST'])
+def guardar_gestion_solicitud(id_solicitud):
+    try:
+        estado      = request.form.get('estado')
+        observacion = request.form.get('observacion_admin', '').strip()
+        res = gestionar_solicitud(id_solicitud, estado, observacion, session.get('usuario_id'))
+        if res == True:
+            return redirect('/listar-solicitudes-cliente')
+        return render_template('error400.html', mensaje=res, url_volver='/listar-solicitudes-cliente'), 400
+    except:
+        return render_template('error500.html'), 500
+
+
 @app.route('/movimiento-equipo')
 def form_movimiento_equipo():
     sedes = listar_sedes()
-    usuarios = listar_usuarios_login()
-    return render_template('form_movimiento_equipo.html', sedes=sedes, usuarios=usuarios)
+    return render_template('form_movimiento_equipo.html', sedes=sedes)
 
 
 @app.route('/guardar-movimiento-equipo', methods=['POST'])
@@ -400,7 +451,7 @@ def guardar_movimiento_equipo():
                 request.form.get('sede_id'),
                 request.form.get('responsable'),
                 request.form.get('fecha'),
-                request.form.get('registrado_por')
+                session.get('usuario_id')
             )
 
             res = insertar_movimiento_equipo(objMovimiento)
@@ -430,8 +481,7 @@ def listar_movimientos_equipo_view():
 def cargar_formulario_editar_movimiento_equipo(id_movimiento):
     resultado = obtener_movimiento_equipo_x_id(id_movimiento)
     sedes = listar_sedes()
-    usuarios = listar_usuarios_login()
-    return render_template('form_movimiento_equipo_edit.html', movimiento=resultado[0], sedes=sedes, usuarios=usuarios)
+    return render_template('form_movimiento_equipo_edit.html', movimiento=resultado[0], sedes=sedes)
 
 
 @app.route('/actualizar-movimiento-equipo', methods=['POST'])
@@ -449,7 +499,7 @@ def actualizar_movimiento_equipo_view():
                 request.form.get('sede_id'),
                 request.form.get('responsable'),
                 request.form.get('fecha'),
-                request.form.get('registrado_por'),
+                session.get('usuario_id'),
                 request.form.get('id')
             )
 

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitud #{{ solicitud['id'] }} - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+
+    <div class="header-list">
+      <h1>Solicitud #{{ solicitud['id'] }}</h1>
+      <a href="{{ url_for('listar_solicitudes_cliente_view') }}" class="btn-secundario-nav">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Volver a solicitudes
+      </a>
+    </div>
+
+    <div class="detalle-grid">
+
+      <!-- Columna izquierda: información de la solicitud -->
+      <div class="detalle-info">
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">person</span>
+            Datos del Cliente
+          </div>
+          <div class="detalle-card-body">
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Nombre</span>
+                <span class="detalle-valor">{{ solicitud['nombre_cliente'] }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Apellido</span>
+                <span class="detalle-valor">{{ solicitud['apellido_cliente'] }}</span>
+              </div>
+            </div>
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Tipo de documento</span>
+                <span class="detalle-valor">{{ solicitud['tipo_documento'] | upper }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Numero de documento</span>
+                <span class="detalle-valor">{{ solicitud['numero_documento'] }}</span>
+              </div>
+            </div>
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Telefono</span>
+                <span class="detalle-valor">{{ solicitud['telefono_cliente'] or '—' }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Email</span>
+                <span class="detalle-valor">{{ solicitud['email_cliente'] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">person_raised_hand</span>
+            Detalle de la Solicitud
+          </div>
+          <div class="detalle-card-body">
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Tipo</span>
+                <span class="detalle-valor">{{ solicitud['tipo'] | capitalize }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Estado actual</span>
+                <span class="detalle-valor">
+                  <span class="badge-estado badge-estado--{{ solicitud['estado'] | replace(' ', '-') if solicitud['estado'] else 'pendiente' }}">
+                    {{ solicitud['estado'] | capitalize if solicitud['estado'] else 'Pendiente' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Motivo</span>
+              <span class="detalle-valor detalle-valor--descripcion">{{ solicitud['motivo'] }}</span>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Sede</span>
+              <span class="detalle-valor">{{ solicitud['sede'] or '—' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detalle-card">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">schedule</span>
+            Fechas y Responsables
+          </div>
+          <div class="detalle-card-body">
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Registrado por</span>
+                <span class="detalle-valor">{{ solicitud['solicitado_por'] or '—' }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Fecha de registro</span>
+                <span class="detalle-valor">{{ solicitud['created_at'].strftime('%d/%m/%Y %H:%M') if solicitud['created_at'] else '—' }}</span>
+              </div>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Ultima actualizacion</span>
+              <span class="detalle-valor">{{ solicitud['updated_at'].strftime('%d/%m/%Y %H:%M') if solicitud['updated_at'] else '—' }}</span>
+            </div>
+            {% if solicitud['resuelto_por'] %}
+            <div class="detalle-fila-doble">
+              <div class="detalle-campo">
+                <span class="detalle-label">Resuelto por</span>
+                <span class="detalle-valor">{{ solicitud['resuelto_por'] }}</span>
+              </div>
+              <div class="detalle-campo">
+                <span class="detalle-label">Resuelto el</span>
+                <span class="detalle-valor">{{ solicitud['resuelto_at'].strftime('%d/%m/%Y %H:%M') if solicitud['resuelto_at'] else '—' }}</span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha: panel de gestión -->
+      <div class="detalle-gestion">
+        <div class="detalle-card detalle-card--gestion">
+          <div class="detalle-card-header">
+            <span class="material-symbols-outlined">tune</span>
+            Gestionar Solicitud
+          </div>
+          <div class="detalle-card-body">
+            <form action="{{ url_for('guardar_gestion_solicitud', id_solicitud=solicitud['id']) }}" method="post">
+
+              <label for="estado">Cambiar estado:</label>
+              <select id="estado" name="estado">
+                <option value="pendiente"   {% if not solicitud['estado'] or solicitud['estado'] == 'pendiente'   %}selected{% endif %}>Pendiente</option>
+                <option value="en progreso" {% if solicitud['estado'] == 'en progreso' %}selected{% endif %}>En progreso</option>
+                <option value="resuelto"    {% if solicitud['estado'] == 'resuelto'    %}selected{% endif %}>Resuelto</option>
+              </select>
+
+              <label for="observacion_admin">Observacion:</label>
+              <textarea id="observacion_admin" name="observacion_admin" rows="6" placeholder="Agrega una observacion sobre esta solicitud...">{{ solicitud['observacion_admin'] or '' }}</textarea>
+
+              <div class="gestion-nota">
+                <span class="material-symbols-outlined">info</span>
+                Al marcar como <strong>Resuelto</strong> se registrara tu usuario y la fecha/hora actual.
+              </div>
+
+              <input type="submit" value="Guardar cambios">
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

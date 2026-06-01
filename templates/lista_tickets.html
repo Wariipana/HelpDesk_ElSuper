@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Tickets - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -21,9 +23,9 @@
             <th>Titulo</th>
             <th>Categoria</th>
             <th>Prioridad</th>
-            <th>Equipo Afectado</th>
-            <th>Contacto</th>
+            <th>Estado</th>
             <th>Sede</th>
+            <th>Creado por</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -31,20 +33,28 @@
           {% if tickets %}
             {% for ticket in tickets %}
             <tr>
-              <td>{{ ticket['id'] }}</td>
-              <td>{{ ticket['titulo'] }}</td>
-              <td>{{ ticket['categoria'] }}</td>
-              <td>{{ ticket['prioridad'] }}</td>
-              <td>{{ ticket['equipo_afectado'] }}</td>
-              <td>{{ ticket['nombre_contacto'] }}</td>
-              <td>{{ ticket['sede_id'] }}</td>
-              <td>
-                <a href="{{ url_for('cargar_formulario_editar_ticket', id_ticket=ticket['id']) }}" class="btn-editar">Editar</a>
-                <a href="#"
-                   class="btn-eliminar"
-                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar el ticket {{ ticket.titulo }}?', '{{ url_for("eliminar_ticket_view", id_ticket=ticket.id) }}'); return false;">
-                  Eliminar
-                </a>
+              <td data-label="ID">{{ ticket['id'] }}</td>
+              <td data-label="Titulo">{{ ticket['titulo'] }}</td>
+              <td data-label="Categoria">{{ ticket['categoria'] | capitalize }}</td>
+              <td data-label="Prioridad">
+                <span class="badge-prioridad badge-prioridad--{{ ticket['prioridad'] }}">
+                  {{ ticket['prioridad'] | capitalize }}
+                </span>
+              </td>
+              <td data-label="Estado">
+                <span class="badge-estado badge-estado--{{ ticket['estado'] | replace(' ', '-') }}">
+                  {{ ticket['estado'] | capitalize }}
+                </span>
+              </td>
+              <td data-label="Sede">{{ ticket['sede'] }}</td>
+              <td data-label="Creado por">{{ ticket['creado_por'] }}</td>
+              <td data-label="Acciones">
+                <div class="acciones">
+                  <a href="{{ url_for('gestionar_ticket_view', id_ticket=ticket['id']) }}" class="btn-gestionar">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    Gestionar
+                  </a>
+                </div>
               </td>
             </tr>
             {% endfor %}
@@ -53,17 +63,6 @@
           {% endif %}
         </tbody>
       </table>
-    </div>
-  </div>
-
-  <div id="modal-confirmar" class="modal-overlay modal-oculto">
-    <div class="modal-caja">
-      <h3>Confirmar eliminacion</h3>
-      <p id="modal-confirmar-texto"></p>
-      <div class="modal-botones">
-        <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>
-        <a id="modal-confirmar-btn" href="#" class="btn-accion">Eliminar</a>
-      </div>
     </div>
   </div>
 

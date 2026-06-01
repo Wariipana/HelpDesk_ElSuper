@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Movimientos de Equipo - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -25,6 +27,7 @@
             <th>Sede</th>
             <th>Responsable</th>
             <th>Fecha</th>
+            <th>Registrado por</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -32,26 +35,29 @@
           {% if movimientos %}
             {% for movimiento in movimientos %}
             <tr>
-              <td>{{ movimiento['id'] }}</td>
-              <td>{{ movimiento['tipo'] }}</td>
-              <td>{{ movimiento['tipo_equipo'] }}</td>
-              <td>{{ movimiento['modelo'] }}</td>
-              <td>{{ movimiento['numero_serie'] }}</td>
-              <td>{{ movimiento['sede_id'] }}</td>
-              <td>{{ movimiento['responsable'] }}</td>
-              <td>{{ movimiento['fecha'] }}</td>
-              <td>
-                <a href="{{ url_for('cargar_formulario_editar_movimiento_equipo', id_movimiento=movimiento['id']) }}" class="btn-editar">Editar</a>
-                <a href="#"
-                   class="btn-eliminar"
-                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar el movimiento de {{ movimiento.tipo_equipo }} {{ movimiento.modelo }}?', '{{ url_for("eliminar_movimiento_equipo_view", id_movimiento=movimiento.id) }}'); return false;">
-                  Eliminar
-                </a>
+              <td data-label="ID">{{ movimiento['id'] }}</td>
+              <td data-label="Tipo">{{ movimiento['tipo'] }}</td>
+              <td data-label="Equipo">{{ movimiento['tipo_equipo'] }}</td>
+              <td data-label="Modelo">{{ movimiento['modelo'] }}</td>
+              <td data-label="N. Serie">{{ movimiento['numero_serie'] }}</td>
+              <td data-label="Sede">{{ movimiento['sede'] }}</td>
+              <td data-label="Responsable">{{ movimiento['responsable'] }}</td>
+              <td data-label="Fecha">{{ movimiento['fecha'] }}</td>
+              <td data-label="Registrado por">{{ movimiento['registrado_por'] }}</td>
+              <td data-label="Acciones">
+                <div class="acciones">
+                  <a href="{{ url_for('cargar_formulario_editar_movimiento_equipo', id_movimiento=movimiento['id']) }}" class="btn-editar">Editar</a>
+                  <a href="#"
+                     class="btn-eliminar"
+                     onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar el movimiento de {{ movimiento.tipo_equipo }} {{ movimiento.modelo }}?', '{{ url_for("eliminar_movimiento_equipo_view", id_movimiento=movimiento.id) }}'); return false;">
+                    Eliminar
+                  </a>
+                </div>
               </td>
             </tr>
             {% endfor %}
           {% else %}
-            <tr><td colspan="9" class="sin-registros">No existen registros</td></tr>
+            <tr><td colspan="10" class="sin-registros">No existen registros</td></tr>
           {% endif %}
         </tbody>
       </table>

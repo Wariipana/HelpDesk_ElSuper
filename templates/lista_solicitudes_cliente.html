@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Solicitudes de Cliente - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -18,12 +20,12 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Tipo Documento</th>
-            <th>Numero Documento</th>
+            <th>Cliente</th>
+            <th>Documento</th>
             <th>Tipo</th>
+            <th>Estado</th>
             <th>Sede</th>
+            <th>Solicitado por</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -31,20 +33,33 @@
           {% if solicitudes %}
             {% for solicitud in solicitudes %}
             <tr>
-              <td>{{ solicitud['id'] }}</td>
-              <td>{{ solicitud['nombre_cliente'] }}</td>
-              <td>{{ solicitud['apellido_cliente'] }}</td>
-              <td>{{ solicitud['tipo_documento'] }}</td>
-              <td>{{ solicitud['numero_documento'] }}</td>
-              <td>{{ solicitud['tipo'] }}</td>
-              <td>{{ solicitud['sede_id'] }}</td>
-              <td>
-                <a href="{{ url_for('cargar_formulario_editar_solicitud_cliente', id_solicitud=solicitud['id']) }}" class="btn-editar">Editar</a>
-                <a href="#"
-                   class="btn-eliminar"
-                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar la solicitud de {{ solicitud.nombre_cliente }} {{ solicitud.apellido_cliente }}?', '{{ url_for("eliminar_solicitud_cliente_view", id_solicitud=solicitud.id) }}'); return false;">
-                  Eliminar
-                </a>
+              <td data-label="ID">{{ solicitud['id'] }}</td>
+              <td data-label="Cliente">{{ solicitud['nombre_cliente'] }} {{ solicitud['apellido_cliente'] }}</td>
+              <td data-label="Documento">{{ solicitud['tipo_documento'] | upper }} {{ solicitud['numero_documento'] }}</td>
+              <td data-label="Tipo">{{ solicitud['tipo'] | capitalize }}</td>
+              <td data-label="Estado">
+                <span class="badge-estado badge-estado--{{ solicitud['estado'] | replace(' ', '-') if solicitud['estado'] else 'pendiente' }}">
+                  {{ solicitud['estado'] | capitalize if solicitud['estado'] else 'Pendiente' }}
+                </span>
+              </td>
+              <td data-label="Sede">{{ solicitud['sede'] }}</td>
+              <td data-label="Solicitado por">{{ solicitud['solicitado_por'] }}</td>
+              <td data-label="Acciones">
+                <div class="acciones">
+                  {% if session.get('usuario_rol') == 'admin_ti' %}
+                    <a href="{{ url_for('gestionar_solicitud_view', id_solicitud=solicitud['id']) }}" class="btn-gestionar">
+                      <span class="material-symbols-outlined">open_in_new</span>
+                      Gestionar
+                    </a>
+                  {% else %}
+                    <a href="{{ url_for('cargar_formulario_editar_solicitud_cliente', id_solicitud=solicitud['id']) }}" class="btn-editar">Editar</a>
+                    <a href="#"
+                       class="btn-eliminar"
+                       onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar la solicitud de {{ solicitud['nombre_cliente'] }} {{ solicitud['apellido_cliente'] }}?', '{{ url_for('eliminar_solicitud_cliente_view', id_solicitud=solicitud['id']) }}'); return false;">
+                      Eliminar
+                    </a>
+                  {% endif %}
+                </div>
               </td>
             </tr>
             {% endfor %}

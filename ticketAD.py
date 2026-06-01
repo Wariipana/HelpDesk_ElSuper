@@ -44,9 +44,12 @@ def listar_tickets():
             with connection:
                 with connection.cursor() as cursor:
                     sql = (
-                        "SELECT `id`, `titulo`, `categoria`, `prioridad`, "
-                        "`equipo_afectado`, `nombre_contacto`, `sede_id` "
-                        "FROM `tickets`"
+                        "SELECT t.`id`, t.`titulo`, t.`categoria`, t.`prioridad`, "
+                        "t.`estado`, t.`equipo_afectado`, t.`nombre_contacto`, "
+                        "s.`nombre` AS `sede`, u.`username` AS `creado_por` "
+                        "FROM `tickets` t "
+                        "LEFT JOIN `sedes` s ON t.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` u ON t.`creado_por` = u.`id`"
                     )
                     cursor.execute(sql)
                     result = cursor.fetchall()
@@ -54,6 +57,85 @@ def listar_tickets():
         return None
     except:
         return None
+
+
+def listar_tickets_x_sede(sede_id):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT t.`id`, t.`titulo`, t.`categoria`, t.`prioridad`, "
+                        "t.`estado`, t.`equipo_afectado`, t.`nombre_contacto`, "
+                        "s.`nombre` AS `sede`, u.`username` AS `creado_por` "
+                        "FROM `tickets` t "
+                        "LEFT JOIN `sedes` s ON t.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` u ON t.`creado_por` = u.`id` "
+                        "WHERE t.`sede_id` = %s"
+                    )
+                    cursor.execute(sql, sede_id)
+                    return cursor.fetchall()
+        return None
+    except:
+        return None
+
+
+def obtener_ticket_detalle(p_id):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT t.`id`, t.`titulo`, t.`descripcion`, t.`categoria`, "
+                        "t.`prioridad`, t.`estado`, t.`comentario_admin`, "
+                        "t.`equipo_afectado`, t.`cantidad_equipos`, "
+                        "t.`nombre_contacto`, t.`telefono_contacto`, "
+                        "t.`fecha_limite`, t.`created_at`, t.`updated_at`, "
+                        "t.`resuelto_at`, "
+                        "s.`nombre` AS `sede`, "
+                        "uc.`nombre_completo` AS `creado_por`, "
+                        "ur.`nombre_completo` AS `resuelto_por` "
+                        "FROM `tickets` t "
+                        "LEFT JOIN `sedes` s ON t.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` uc ON t.`creado_por` = uc.`id` "
+                        "LEFT JOIN `usuarios` ur ON t.`resuelto_por` = ur.`id` "
+                        "WHERE t.`id` = %s"
+                    )
+                    cursor.execute(sql, p_id)
+                    return cursor.fetchone()
+        return None
+    except:
+        raise
+
+
+def gestionar_ticket(p_id, estado, comentario, resuelto_por_id):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    if estado == 'resuelto':
+                        sql = (
+                            "UPDATE `tickets` "
+                            "SET `estado` = %s, `comentario_admin` = %s, "
+                            "`resuelto_por` = %s, `resuelto_at` = NOW() "
+                            "WHERE `id` = %s"
+                        )
+                        cursor.execute(sql, (estado, comentario, resuelto_por_id, p_id))
+                    else:
+                        sql = (
+                            "UPDATE `tickets` "
+                            "SET `estado` = %s, `comentario_admin` = %s "
+                            "WHERE `id` = %s"
+                        )
+                        cursor.execute(sql, (estado, comentario, p_id))
+                connection.commit()
+            return True
+        return False
+    except pymysql.MySQLError as e:
+        return e.args[1]
 
 
 def obtener_ticket_x_id(p_id):

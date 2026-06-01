@@ -1,14 +1,87 @@
-<div class="sidebar">
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">
+  <span class="material-symbols-outlined">menu</span>
+</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <span class="brand-name">ElSuper</span>
     <span class="brand-sub">HelpDesk</span>
   </div>
   <nav>
     <span class="nav-label">Modulos</span>
-    <a href="{{ url_for('listar_tickets_view') }}">Tickets</a>
-    <a href="{{ url_for('listar_solicitudes_cliente_view') }}">Solicitudes de Cliente</a>
-    <a href="{{ url_for('listar_movimientos_equipo_view') }}">Movimientos de Equipo</a>
-    <a href="{{ url_for('listar_sedes_view') }}">Sedes</a>
-    <a href="{{ url_for('listar_usuarios_view') }}">Usuarios</a>
+    <a href="{{ url_for('listar_tickets_view') }}">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      Tickets
+    </a>
+    <a href="{{ url_for('listar_solicitudes_cliente_view') }}">
+      <span class="material-symbols-outlined">person_raised_hand</span>
+      Solicitudes de Cliente
+    </a>
+    {% if session.get('usuario_rol') == 'admin_ti' %}
+    <a href="{{ url_for('listar_movimientos_equipo_view') }}">
+      <span class="material-symbols-outlined">move_item</span>
+      Movimientos de Equipo
+    </a>
+    <a href="{{ url_for('listar_sedes_view') }}">
+      <span class="material-symbols-outlined">location_on</span>
+      Sedes
+    </a>
+    <a href="{{ url_for('listar_usuarios_view') }}">
+      <span class="material-symbols-outlined">manage_accounts</span>
+      Usuarios
+    </a>
+    {% endif %}
   </nav>
+
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">
+      <span class="material-symbols-outlined">account_circle</span>
+    </div>
+    <div class="sidebar-user-info">
+      <span class="sidebar-user-nombre">{{ session.get('usuario_nombre', 'Usuario') }}</span>
+      {% if session.get('usuario_rol') == 'admin_tienda' %}
+        <span class="sidebar-user-cargo">Admin. de Tienda</span>
+        {% if session.get('usuario_sede') %}
+          <span class="sidebar-user-sede">
+            <span class="material-symbols-outlined">location_on</span>
+            {{ session.get('usuario_sede') }}
+          </span>
+        {% endif %}
+      {% else %}
+        <span class="sidebar-user-cargo">Admin. del Sistema</span>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('logout') }}" class="sidebar-logout" title="Cerrar sesion">
+      <span class="material-symbols-outlined">logout</span>
+    </a>
+  </div>
 </div>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('sidebar-toggle');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebar-overlay');
+
+    function abrirSidebar() {
+      sidebar.classList.add('sidebar-open');
+      overlay.classList.add('sidebar-open');
+    }
+
+    function cerrarSidebar() {
+      sidebar.classList.remove('sidebar-open');
+      overlay.classList.remove('sidebar-open');
+    }
+
+    toggle.addEventListener('click', function () {
+      if (sidebar.classList.contains('sidebar-open')) {
+        cerrarSidebar();
+      } else {
+        abrirSidebar();
+      }
+    });
+
+    overlay.addEventListener('click', cerrarSidebar);
+  }());
+</script>

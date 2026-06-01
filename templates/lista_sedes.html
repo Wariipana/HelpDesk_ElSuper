@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Sedes - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -27,16 +29,18 @@
           {% if sedes %}
             {% for sede in sedes %}
             <tr>
-              <td>{{ sede['id'] }}</td>
-              <td>{{ sede['nombre'] }}</td>
-              <td>{{ sede['direccion'] }}</td>
-              <td>
-                <a href="{{ url_for('cargar_formulario_editar_sede', id_sede=sede['id']) }}" class="btn-editar">Editar</a>
-                <a href="#"
-                   class="btn-eliminar"
-                   onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar la sede {{ sede.nombre }}?', '{{ url_for("eliminar_sede_view", id_sede=sede.id) }}'); return false;">
-                  Eliminar
-                </a>
+              <td data-label="ID">{{ sede['id'] }}</td>
+              <td data-label="Nombre">{{ sede['nombre'] }}</td>
+              <td data-label="Direccion">{{ sede['direccion'] }}</td>
+              <td data-label="Acciones">
+                <div class="acciones">
+                  <a href="{{ url_for('cargar_formulario_editar_sede', id_sede=sede['id']) }}" class="btn-editar">Editar</a>
+                  <a href="#"
+                     class="btn-eliminar"
+                     onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar la sede {{ sede.nombre }}?', '{{ url_for("eliminar_sede_view", id_sede=sede.id) }}'); return false;">
+                    Eliminar
+                  </a>
+                </div>
               </td>
             </tr>
             {% endfor %}

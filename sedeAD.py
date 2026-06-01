@@ -49,7 +49,7 @@ def obtener_sede_x_id(p_id):
         raise
 
 
-def actualizar_sede(objSede: Sede):
+def actualizar_sede(objSede ):
     try:
         connection = obtenerconexion()
         if connection:
