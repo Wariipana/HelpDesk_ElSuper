@@ -59,6 +59,65 @@ def listar_tickets():
         return None
 
 
+def listar_tickets_filtrado(sede_id_fijo=None, fecha_desde=None, fecha_hasta=None,
+                            sede_id=None, prioridad=None, estado=None, categoria=None,
+                            pagina=1, por_pagina=20):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    base = (
+                        "SELECT t.`id`, t.`titulo`, t.`categoria`, t.`prioridad`, "
+                        "t.`estado`, t.`equipo_afectado`, t.`nombre_contacto`, "
+                        "s.`nombre` AS `sede`, u.`username` AS `creado_por`, "
+                        "t.`created_at` "
+                        "FROM `tickets` t "
+                        "LEFT JOIN `sedes` s ON t.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` u ON t.`creado_por` = u.`id` "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+
+                    if sede_id_fijo:
+                        base += "AND t.`sede_id` = %s "
+                        params.append(sede_id_fijo)
+                    if fecha_desde:
+                        base += "AND DATE(t.`created_at`) >= %s "
+                        params.append(fecha_desde)
+                    if fecha_hasta:
+                        base += "AND DATE(t.`created_at`) <= %s "
+                        params.append(fecha_hasta)
+                    if sede_id:
+                        base += "AND t.`sede_id` = %s "
+                        params.append(sede_id)
+                    if prioridad:
+                        base += "AND t.`prioridad` = %s "
+                        params.append(prioridad)
+                    if estado:
+                        base += "AND t.`estado` = %s "
+                        params.append(estado)
+                    if categoria:
+                        base += "AND t.`categoria` = %s "
+                        params.append(categoria)
+
+                    count_sql = "SELECT COUNT(*) AS total FROM (" + base + ") sub"
+                    cursor.execute(count_sql, params)
+                    total = cursor.fetchone()['total']
+
+                    offset = (pagina - 1) * por_pagina
+                    base += "ORDER BY t.`created_at` DESC LIMIT %s OFFSET %s"
+                    params.append(por_pagina)
+                    params.append(offset)
+
+                    cursor.execute(base, params)
+                    registros = cursor.fetchall()
+                    return registros, total
+        return [], 0
+    except:
+        return [], 0
+
+
 def listar_tickets_x_sede(sede_id):
     try:
         connection = obtenerconexion()

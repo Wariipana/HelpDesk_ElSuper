@@ -60,6 +60,62 @@ def listar_solicitudes_cliente():
         return None
 
 
+def listar_solicitudes_filtrado(sede_id_fijo=None, fecha_desde=None, fecha_hasta=None,
+                                sede_id=None, tipo=None, estado=None,
+                                pagina=1, por_pagina=20):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    base = (
+                        "SELECT sc.`id`, sc.`nombre_cliente`, sc.`apellido_cliente`, "
+                        "sc.`tipo_documento`, sc.`numero_documento`, "
+                        "sc.`tipo`, sc.`estado`, s.`nombre` AS `sede`, "
+                        "u.`username` AS `solicitado_por`, sc.`created_at` "
+                        "FROM `solicitudes_cliente` sc "
+                        "LEFT JOIN `sedes` s ON sc.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` u ON sc.`solicitado_por` = u.`id` "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+
+                    if sede_id_fijo:
+                        base += "AND sc.`sede_id` = %s "
+                        params.append(sede_id_fijo)
+                    if fecha_desde:
+                        base += "AND DATE(sc.`created_at`) >= %s "
+                        params.append(fecha_desde)
+                    if fecha_hasta:
+                        base += "AND DATE(sc.`created_at`) <= %s "
+                        params.append(fecha_hasta)
+                    if sede_id:
+                        base += "AND sc.`sede_id` = %s "
+                        params.append(sede_id)
+                    if tipo:
+                        base += "AND sc.`tipo` = %s "
+                        params.append(tipo)
+                    if estado:
+                        base += "AND sc.`estado` = %s "
+                        params.append(estado)
+
+                    count_sql = "SELECT COUNT(*) AS total FROM (" + base + ") sub"
+                    cursor.execute(count_sql, params)
+                    total = cursor.fetchone()['total']
+
+                    offset = (pagina - 1) * por_pagina
+                    base += "ORDER BY sc.`created_at` DESC LIMIT %s OFFSET %s"
+                    params.append(por_pagina)
+                    params.append(offset)
+
+                    cursor.execute(base, params)
+                    registros = cursor.fetchall()
+                    return registros, total
+        return [], 0
+    except:
+        return [], 0
+
+
 def listar_solicitudes_x_sede(sede_id):
     try:
         connection = obtenerconexion()

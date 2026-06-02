@@ -1,3 +1,4 @@
+{% from '_paginacion.html' import paginar %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,17 +16,80 @@
       <a href="{{ url_for('form_ticket') }}" class="btn-nuevo">+ Nuevo Ticket</a>
     </div>
 
+    <!-- Filtros -->
+    <form method="GET" action="{{ url_for('listar_tickets_view') }}" class="filtros-form">
+      <div class="filtros-fila">
+        <div class="filtro-grupo">
+          <label for="f_fecha_desde">Desde</label>
+          <input type="date" id="f_fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_fecha_hasta">Hasta</label>
+          <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+        </div>
+        {% if session.get('usuario_rol') == 'admin_ti' and sedes %}
+        <div class="filtro-grupo">
+          <label for="f_sede">Sede</label>
+          <select id="f_sede" name="sede_id">
+            <option value="">Todas</option>
+            {% for sede in sedes %}
+            <option value="{{ sede['id'] }}" {% if filtros.sede_id == sede['id']|string %}selected{% endif %}>{{ sede['nombre'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        <div class="filtro-grupo">
+          <label for="f_prioridad">Prioridad</label>
+          <select id="f_prioridad" name="prioridad">
+            <option value="">Todas</option>
+            <option value="baja"    {% if filtros.prioridad == 'baja' %}selected{% endif %}>Baja</option>
+            <option value="media"   {% if filtros.prioridad == 'media' %}selected{% endif %}>Media</option>
+            <option value="alta"    {% if filtros.prioridad == 'alta' %}selected{% endif %}>Alta</option>
+            <option value="critica" {% if filtros.prioridad == 'critica' %}selected{% endif %}>Critica</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_estado">Estado</label>
+          <select id="f_estado" name="estado">
+            <option value="">Todos</option>
+            <option value="pendiente"   {% if filtros.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            <option value="en progreso" {% if filtros.estado == 'en progreso' %}selected{% endif %}>En progreso</option>
+            <option value="resuelto"    {% if filtros.estado == 'resuelto' %}selected{% endif %}>Resuelto</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_categoria">Categoria</label>
+          <select id="f_categoria" name="categoria">
+            <option value="">Todas</option>
+            <option value="hardware"      {% if filtros.categoria == 'hardware' %}selected{% endif %}>Hardware</option>
+            <option value="software"      {% if filtros.categoria == 'software' %}selected{% endif %}>Software</option>
+            <option value="conectividad"  {% if filtros.categoria == 'conectividad' %}selected{% endif %}>Conectividad</option>
+            <option value="otro"          {% if filtros.categoria == 'otro' %}selected{% endif %}>Otro</option>
+          </select>
+        </div>
+        <div class="filtro-acciones">
+          <button type="submit" class="btn-filtrar">Filtrar</button>
+          <a href="{{ url_for('listar_tickets_view') }}" class="btn-limpiar">Limpiar</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="tabla-info">
+      <span>{{ total }} resultado(s) &mdash; pagina {{ pagina }} de {{ total_paginas }}</span>
+    </div>
+
     <div class="tabla-contenedor">
-      <table>
+      <table id="tabla-principal">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Titulo</th>
-            <th>Categoria</th>
-            <th>Prioridad</th>
-            <th>Estado</th>
-            <th>Sede</th>
-            <th>Creado por</th>
+            <th class="col-ordenable" data-col="0">ID <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="1">Titulo <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="2">Categoria <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="3">Prioridad <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="4">Estado <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="5">Sede <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="6">Creado por <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="7">Fecha <span class="orden-icono"></span></th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -48,6 +112,7 @@
               </td>
               <td data-label="Sede">{{ ticket['sede'] }}</td>
               <td data-label="Creado por">{{ ticket['creado_por'] }}</td>
+              <td data-label="Fecha">{{ ticket['created_at'].strftime('%d/%m/%Y') if ticket['created_at'] else '—' }}</td>
               <td data-label="Acciones">
                 <div class="acciones">
                   <a href="{{ url_for('gestionar_ticket_view', id_ticket=ticket['id']) }}" class="btn-gestionar">
@@ -59,13 +124,17 @@
             </tr>
             {% endfor %}
           {% else %}
-            <tr><td colspan="8" class="sin-registros">No existen registros</td></tr>
+            <tr><td colspan="9" class="sin-registros">No existen registros</td></tr>
           {% endif %}
         </tbody>
       </table>
     </div>
+
+    {{ paginar(pagina, total_paginas, filtros) }}
+
   </div>
 
   <script src="/static/validaciones.js"></script>
+  <script src="/static/tabla_orden.js"></script>
 </body>
 </html>

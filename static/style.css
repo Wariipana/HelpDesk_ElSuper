@@ -897,6 +897,67 @@ tbody tr:hover td {
   margin-bottom: 0;
 }
 
+/* ── Secciones del panel de gestión ── */
+.gestion-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.gestion-seccion-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--texto-muted);
+  margin-bottom: 6px;
+}
+
+.btn-avance-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  margin-bottom: 12px;
+}
+
+.btn-avance-estado .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.btn-avance--progreso {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+.btn-avance--progreso:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, .3);
+}
+
+.btn-avance--resuelto {
+  background-color: #16a34a;
+  color: #fff;
+}
+
+.btn-avance--resuelto:hover {
+  background-color: #15803d;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, .3);
+}
+
+.gestion-divisor {
+  border-top: 1px solid var(--borde);
+  margin: 16px 0;
+}
+
 /* Panel de gestión */
 .detalle-card--gestion {
   position: sticky;
@@ -948,6 +1009,157 @@ tbody tr:hover td {
   flex-shrink: 0;
   margin-top: 1px;
   color: #f59e0b;
+}
+
+/* ── Filtros ── */
+.filtros-form {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--sombra);
+  max-width: none;
+}
+
+.filtros-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 130px;
+}
+
+.filtro-grupo label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--texto-muted);
+  margin-bottom: 0;
+}
+
+.filtro-grupo input[type="date"],
+.filtro-grupo input[type="text"],
+.filtro-grupo select {
+  margin: 0;
+  padding: 7px 10px;
+  font-size: 0.86rem;
+  height: 34px;
+}
+
+.filtro-acciones {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-bottom: 0;
+}
+
+.btn-filtrar {
+  padding: 7px 18px;
+  background-color: var(--rojo);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  height: 34px;
+  transition: background 0.15s;
+}
+
+.btn-filtrar:hover {
+  background-color: var(--rojo-oscuro);
+}
+
+.btn-limpiar {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  background-color: #e5e7eb;
+  color: var(--texto);
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  height: 34px;
+  transition: background 0.12s;
+}
+
+.btn-limpiar:hover {
+  background-color: #d1d5db;
+}
+
+/* ── Info de tabla ── */
+.tabla-info {
+  font-size: 0.8rem;
+  color: var(--texto-muted);
+  margin-bottom: 8px;
+}
+
+/* ── Cabeceras ordenables ── */
+th.col-ordenable:hover {
+  background-color: var(--rojo-oscuro);
+}
+
+.orden-icono {
+  font-size: 0.85rem;
+  font-style: normal;
+}
+
+/* ── Paginacion ── */
+.paginacion {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  align-items: center;
+}
+
+.pag-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+  font-size: 0.83rem;
+  color: var(--texto);
+  text-decoration: none;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.pag-btn:hover {
+  background: #f3f4f6;
+  border-color: #adb5bd;
+}
+
+.pag-btn--activo {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  color: #fff;
+  font-weight: 600;
+}
+
+.pag-btn--activo:hover {
+  background: var(--rojo);
+}
+
+.pag-btn--disabled {
+  color: #adb5bd;
+  cursor: default;
+  background: #f9fafb;
+}
+
+.pag-sep {
+  display: inline-block;
+  padding: 6px 4px;
+  color: var(--texto-muted);
+  font-size: 0.83rem;
 }
 
 /* ── Responsive: tablet (≤900px) ── */
@@ -1059,6 +1271,31 @@ tbody tr:hover td {
     gap: 6px;
     flex-wrap: wrap;
     justify-content: flex-end;
+  }
+
+  /* Filtros en móvil */
+  .filtros-form {
+    padding: 12px 14px;
+  }
+
+  .filtros-fila {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filtro-grupo {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .filtro-grupo input[type="date"],
+  .filtro-grupo select {
+    width: 100%;
+  }
+
+  .filtro-acciones {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   /* Formularios en móvil */

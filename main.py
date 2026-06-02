@@ -5,21 +5,21 @@ from loginClass import Login
 from loginAD import verificar_login, listar_usuarios as listar_usuarios_login
 
 from usuarioClass import Usuario
-from usuarioAD import insertar_usuario, listar_usuarios, obtener_usuario_x_id, actualizar_usuario, eliminar_usuario
+from usuarioAD import insertar_usuario, listar_usuarios, listar_usuarios_filtrado, obtener_usuario_x_id, actualizar_usuario, eliminar_usuario
 
 from sedeClass import Sede
 from sedeAD import insertar_sede, listar_sedes, obtener_sede_x_id, actualizar_sede, eliminar_sede
 
 from ticketClass import Ticket
-from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, gestionar_ticket
+from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, listar_tickets_filtrado, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, gestionar_ticket
 
 from solicitudClienteClass import SolicitudCliente
 from solicitudClienteAD import (insertar_solicitud_cliente, listar_solicitudes_cliente,
-    listar_solicitudes_x_sede, obtener_solicitud_cliente_x_id, obtener_solicitud_detalle,
+    listar_solicitudes_x_sede, listar_solicitudes_filtrado, obtener_solicitud_cliente_x_id, obtener_solicitud_detalle,
     actualizar_solicitud_cliente, eliminar_solicitud_cliente, gestionar_solicitud)
 
 from movimientoEquipoClass import MovimientoEquipo
-from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo, obtener_movimiento_equipo_x_id, actualizar_movimiento_equipo, eliminar_movimiento_equipo
+from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo, listar_movimientos_filtrado, obtener_movimiento_equipo_x_id, actualizar_movimiento_equipo, eliminar_movimiento_equipo
 
 app = Flask(__name__)
 app.secret_key = 'elsuper_helpdesk_secret_2024'
@@ -219,11 +219,41 @@ def guardar_ticket():
 @app.route('/listar-tickets')
 def listar_tickets_view():
     rol = session.get('usuario_rol')
-    if rol == 'admin_tienda':
-        resultado = listar_tickets_x_sede(session.get('usuario_sede_id'))
-    else:
-        resultado = listar_tickets()
-    return render_template('lista_tickets.html', tickets=resultado)
+    sede_id_fijo = session.get('usuario_sede_id') if rol == 'admin_tienda' else None
+
+    fecha_desde  = request.args.get('fecha_desde', '').strip()
+    fecha_hasta  = request.args.get('fecha_hasta', '').strip()
+    sede_id      = request.args.get('sede_id', '').strip()
+    prioridad    = request.args.get('prioridad', '').strip()
+    estado       = request.args.get('estado', '').strip()
+    categoria    = request.args.get('categoria', '').strip()
+    pagina       = int(request.args.get('pagina', 1))
+
+    tickets, total = listar_tickets_filtrado(
+        sede_id_fijo = sede_id_fijo or None,
+        fecha_desde  = fecha_desde  or None,
+        fecha_hasta  = fecha_hasta  or None,
+        sede_id      = sede_id      or None,
+        prioridad    = prioridad    or None,
+        estado       = estado       or None,
+        categoria    = categoria    or None,
+        pagina       = pagina,
+        por_pagina   = 20
+    )
+
+    por_pagina    = 20
+    total_paginas = max(1, -(-total // por_pagina))
+    sedes         = listar_sedes() if rol != 'admin_tienda' else []
+
+    filtros = {
+        'fecha_desde': fecha_desde, 'fecha_hasta': fecha_hasta,
+        'sede_id': sede_id, 'prioridad': prioridad,
+        'estado': estado, 'categoria': categoria,
+    }
+
+    return render_template('lista_tickets.html',
+        tickets=tickets, sedes=sedes, filtros=filtros,
+        pagina=pagina, total_paginas=total_paginas, total=total)
 
 
 @app.route('/cargar-formulario-editar-ticket/<int:id_ticket>')
@@ -347,11 +377,38 @@ def guardar_solicitud_cliente():
 @app.route('/listar-solicitudes-cliente')
 def listar_solicitudes_cliente_view():
     rol = session.get('usuario_rol')
-    if rol == 'admin_tienda':
-        resultado = listar_solicitudes_x_sede(session.get('usuario_sede_id'))
-    else:
-        resultado = listar_solicitudes_cliente()
-    return render_template('lista_solicitudes_cliente.html', solicitudes=resultado)
+    sede_id_fijo = session.get('usuario_sede_id') if rol == 'admin_tienda' else None
+
+    fecha_desde = request.args.get('fecha_desde', '').strip()
+    fecha_hasta = request.args.get('fecha_hasta', '').strip()
+    sede_id     = request.args.get('sede_id', '').strip()
+    tipo        = request.args.get('tipo', '').strip()
+    estado      = request.args.get('estado', '').strip()
+    pagina      = int(request.args.get('pagina', 1))
+
+    solicitudes, total = listar_solicitudes_filtrado(
+        sede_id_fijo = sede_id_fijo or None,
+        fecha_desde  = fecha_desde  or None,
+        fecha_hasta  = fecha_hasta  or None,
+        sede_id      = sede_id      or None,
+        tipo         = tipo         or None,
+        estado       = estado       or None,
+        pagina       = pagina,
+        por_pagina   = 20
+    )
+
+    por_pagina    = 20
+    total_paginas = max(1, -(-total // por_pagina))
+    sedes         = listar_sedes() if rol != 'admin_tienda' else []
+
+    filtros = {
+        'fecha_desde': fecha_desde, 'fecha_hasta': fecha_hasta,
+        'sede_id': sede_id, 'tipo': tipo, 'estado': estado,
+    }
+
+    return render_template('lista_solicitudes_cliente.html',
+        solicitudes=solicitudes, sedes=sedes, filtros=filtros,
+        pagina=pagina, total_paginas=total_paginas, total=total)
 
 
 @app.route('/cargar-formulario-editar-solicitud-cliente/<int:id_solicitud>')
@@ -473,8 +530,35 @@ def guardar_movimiento_equipo():
 
 @app.route('/listar-movimientos-equipo')
 def listar_movimientos_equipo_view():
-    resultado = listar_movimientos_equipo()
-    return render_template('lista_movimientos_equipo.html', movimientos=resultado)
+    fecha_desde = request.args.get('fecha_desde', '').strip()
+    fecha_hasta = request.args.get('fecha_hasta', '').strip()
+    sede_id     = request.args.get('sede_id', '').strip()
+    tipo        = request.args.get('tipo', '').strip()
+    tipo_equipo = request.args.get('tipo_equipo', '').strip()
+    pagina      = int(request.args.get('pagina', 1))
+
+    movimientos, total = listar_movimientos_filtrado(
+        fecha_desde = fecha_desde or None,
+        fecha_hasta = fecha_hasta or None,
+        sede_id     = sede_id     or None,
+        tipo        = tipo        or None,
+        tipo_equipo = tipo_equipo or None,
+        pagina      = pagina,
+        por_pagina  = 20
+    )
+
+    por_pagina    = 20
+    total_paginas = max(1, -(-total // por_pagina))
+    sedes         = listar_sedes()
+
+    filtros = {
+        'fecha_desde': fecha_desde, 'fecha_hasta': fecha_hasta,
+        'sede_id': sede_id, 'tipo': tipo, 'tipo_equipo': tipo_equipo,
+    }
+
+    return render_template('lista_movimientos_equipo.html',
+        movimientos=movimientos, sedes=sedes, filtros=filtros,
+        pagina=pagina, total_paginas=total_paginas, total=total)
 
 
 @app.route('/cargar-formulario-editar-movimiento-equipo/<int:id_movimiento>')
@@ -572,8 +656,28 @@ def guardar_usuario():
 
 @app.route('/listar-usuarios')
 def listar_usuarios_view():
-    resultado = listar_usuarios()
-    return render_template('lista_usuarios.html', usuarios=resultado)
+    sede_id = request.args.get('sede_id', '').strip()
+    rol     = request.args.get('rol', '').strip()
+    activo  = request.args.get('activo', '').strip()
+    pagina  = int(request.args.get('pagina', 1))
+
+    usuarios, total = listar_usuarios_filtrado(
+        sede_id    = sede_id or None,
+        rol        = rol     or None,
+        activo     = activo  if activo != '' else None,
+        pagina     = pagina,
+        por_pagina = 20
+    )
+
+    por_pagina    = 20
+    total_paginas = max(1, -(-total // por_pagina))
+    sedes         = listar_sedes()
+
+    filtros = {'sede_id': sede_id, 'rol': rol, 'activo': activo}
+
+    return render_template('lista_usuarios.html',
+        usuarios=usuarios, sedes=sedes, filtros=filtros,
+        pagina=pagina, total_paginas=total_paginas, total=total)
 
 
 @app.route('/cargar-formulario-editar-usuario/<int:id_usuario>')

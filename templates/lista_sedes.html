@@ -16,12 +16,12 @@
     </div>
 
     <div class="tabla-contenedor">
-      <table>
+      <table id="tabla-principal">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Direccion</th>
+            <th class="col-ordenable" data-col="0">ID <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="1">Nombre <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="2">Direccion <span class="orden-icono"></span></th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -64,5 +64,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
+  <script src="/static/tabla_orden.js"></script>
 </body>
 </html>

@@ -55,6 +55,58 @@ def listar_movimientos_equipo():
         return None
 
 
+def listar_movimientos_filtrado(fecha_desde=None, fecha_hasta=None,
+                                sede_id=None, tipo=None, tipo_equipo=None,
+                                pagina=1, por_pagina=20):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    base = (
+                        "SELECT me.`id`, me.`tipo`, me.`tipo_equipo`, me.`modelo`, "
+                        "me.`numero_serie`, s.`nombre` AS `sede`, me.`responsable`, "
+                        "me.`fecha`, u.`username` AS `registrado_por` "
+                        "FROM `movimientos_equipo` me "
+                        "LEFT JOIN `sedes` s ON me.`sede_id` = s.`id` "
+                        "LEFT JOIN `usuarios` u ON me.`registrado_por` = u.`id` "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+
+                    if fecha_desde:
+                        base += "AND me.`fecha` >= %s "
+                        params.append(fecha_desde)
+                    if fecha_hasta:
+                        base += "AND me.`fecha` <= %s "
+                        params.append(fecha_hasta)
+                    if sede_id:
+                        base += "AND me.`sede_id` = %s "
+                        params.append(sede_id)
+                    if tipo:
+                        base += "AND me.`tipo` = %s "
+                        params.append(tipo)
+                    if tipo_equipo:
+                        base += "AND me.`tipo_equipo` LIKE %s "
+                        params.append('%' + tipo_equipo + '%')
+
+                    count_sql = "SELECT COUNT(*) AS total FROM (" + base + ") sub"
+                    cursor.execute(count_sql, params)
+                    total = cursor.fetchone()['total']
+
+                    offset = (pagina - 1) * por_pagina
+                    base += "ORDER BY me.`fecha` DESC LIMIT %s OFFSET %s"
+                    params.append(por_pagina)
+                    params.append(offset)
+
+                    cursor.execute(base, params)
+                    registros = cursor.fetchall()
+                    return registros, total
+        return [], 0
+    except:
+        return [], 0
+
+
 def obtener_movimiento_equipo_x_id(p_id):
     try:
         connection = obtenerconexion()

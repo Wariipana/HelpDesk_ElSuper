@@ -1,3 +1,4 @@
+{% from '_paginacion.html' import paginar %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,19 +16,62 @@
       <a href="{{ url_for('form_movimiento_equipo') }}" class="btn-nuevo">+ Nuevo Movimiento</a>
     </div>
 
+    <!-- Filtros -->
+    <form method="GET" action="{{ url_for('listar_movimientos_equipo_view') }}" class="filtros-form">
+      <div class="filtros-fila">
+        <div class="filtro-grupo">
+          <label for="f_fecha_desde">Desde</label>
+          <input type="date" id="f_fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_fecha_hasta">Hasta</label>
+          <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_sede">Sede</label>
+          <select id="f_sede" name="sede_id">
+            <option value="">Todas</option>
+            {% for sede in sedes %}
+            <option value="{{ sede['id'] }}" {% if filtros.sede_id == sede['id']|string %}selected{% endif %}>{{ sede['nombre'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_tipo">Tipo</label>
+          <select id="f_tipo" name="tipo">
+            <option value="">Todos</option>
+            <option value="entrada" {% if filtros.tipo == 'entrada' %}selected{% endif %}>Entrada</option>
+            <option value="salida"  {% if filtros.tipo == 'salida' %}selected{% endif %}>Salida</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_tipo_equipo">Tipo de equipo</label>
+          <input type="text" id="f_tipo_equipo" name="tipo_equipo" value="{{ filtros.tipo_equipo }}" placeholder="Ej: laptop">
+        </div>
+        <div class="filtro-acciones">
+          <button type="submit" class="btn-filtrar">Filtrar</button>
+          <a href="{{ url_for('listar_movimientos_equipo_view') }}" class="btn-limpiar">Limpiar</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="tabla-info">
+      <span>{{ total }} resultado(s) &mdash; pagina {{ pagina }} de {{ total_paginas }}</span>
+    </div>
+
     <div class="tabla-contenedor">
-      <table>
+      <table id="tabla-principal">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Tipo</th>
-            <th>Tipo Equipo</th>
-            <th>Modelo</th>
-            <th>N. Serie</th>
-            <th>Sede</th>
-            <th>Responsable</th>
-            <th>Fecha</th>
-            <th>Registrado por</th>
+            <th class="col-ordenable" data-col="0">ID <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="1">Tipo <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="2">Tipo Equipo <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="3">Modelo <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="4">N. Serie <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="5">Sede <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="6">Responsable <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="7">Fecha <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="8">Registrado por <span class="orden-icono"></span></th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -62,6 +106,9 @@
         </tbody>
       </table>
     </div>
+
+    {{ paginar(pagina, total_paginas, filtros) }}
+
   </div>
 
   <div id="modal-confirmar" class="modal-overlay modal-oculto">
@@ -76,5 +123,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
+  <script src="/static/tabla_orden.js"></script>
 </body>
 </html>

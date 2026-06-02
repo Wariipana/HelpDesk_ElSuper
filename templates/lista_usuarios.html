@@ -1,3 +1,4 @@
+{% from '_paginacion.html' import paginar %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,16 +16,55 @@
       <a href="{{ url_for('form_usuario') }}" class="btn-nuevo">+ Nuevo Usuario</a>
     </div>
 
+    <!-- Filtros -->
+    <form method="GET" action="{{ url_for('listar_usuarios_view') }}" class="filtros-form">
+      <div class="filtros-fila">
+        <div class="filtro-grupo">
+          <label for="f_sede">Sede</label>
+          <select id="f_sede" name="sede_id">
+            <option value="">Todas</option>
+            {% for sede in sedes %}
+            <option value="{{ sede['id'] }}" {% if filtros.sede_id == sede['id']|string %}selected{% endif %}>{{ sede['nombre'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_rol">Rol</label>
+          <select id="f_rol" name="rol">
+            <option value="">Todos</option>
+            <option value="admin_ti"     {% if filtros.rol == 'admin_ti' %}selected{% endif %}>Admin TI</option>
+            <option value="admin_tienda" {% if filtros.rol == 'admin_tienda' %}selected{% endif %}>Admin Tienda</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_activo">Activo</label>
+          <select id="f_activo" name="activo">
+            <option value="">Todos</option>
+            <option value="1" {% if filtros.activo == '1' %}selected{% endif %}>Si</option>
+            <option value="0" {% if filtros.activo == '0' %}selected{% endif %}>No</option>
+          </select>
+        </div>
+        <div class="filtro-acciones">
+          <button type="submit" class="btn-filtrar">Filtrar</button>
+          <a href="{{ url_for('listar_usuarios_view') }}" class="btn-limpiar">Limpiar</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="tabla-info">
+      <span>{{ total }} resultado(s) &mdash; pagina {{ pagina }} de {{ total_paginas }}</span>
+    </div>
+
     <div class="tabla-contenedor">
-      <table>
+      <table id="tabla-principal">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Nombre Completo</th>
-            <th>Username</th>
-            <th>Rol</th>
-            <th>Sede</th>
-            <th>Activo</th>
+            <th class="col-ordenable" data-col="0">ID <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="1">Nombre Completo <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="2">Username <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="3">Rol <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="4">Sede <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="5">Activo <span class="orden-icono"></span></th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -56,6 +96,9 @@
         </tbody>
       </table>
     </div>
+
+    {{ paginar(pagina, total_paginas, filtros) }}
+
   </div>
 
   <div id="modal-confirmar" class="modal-overlay modal-oculto">
@@ -70,5 +113,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
+  <script src="/static/tabla_orden.js"></script>
 </body>
 </html>
