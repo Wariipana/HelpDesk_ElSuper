@@ -1,5 +1,7 @@
 import pymysql
-from flask import render_template, Flask, request, redirect, session
+from flask import render_template, Flask, request, redirect, session, jsonify
+
+from chatbot_helpdesk import encontrar_respuesta as chatbot_respuesta
 
 from loginClass import Login
 from loginAD import verificar_login, listar_usuarios as listar_usuarios_login
@@ -33,6 +35,18 @@ def error_400(e):
 @app.errorhandler(500)
 def error_500(e):
     return render_template('error500.html'), 500
+
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    try:
+        datos = request.get_json(force=True) or {}
+        pregunta = str(datos.get('pregunta', '')).strip()
+        if not pregunta:
+            return jsonify({'respuesta': 'Escribe una pregunta para continuar.'}), 400
+        return jsonify({'respuesta': chatbot_respuesta(pregunta)})
+    except Exception:
+        return jsonify({'respuesta': 'Ocurrió un error. Intenta de nuevo.'}), 500
+
 
 @app.route('/')
 def index():
