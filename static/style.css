@@ -727,7 +727,7 @@ tbody tr:hover td {
   color: #92400e;
 }
 
-.badge-estado--en-progreso {
+.badge-estado--en-proceso {
   background-color: #dbeafe;
   color: #1e40af;
 }
@@ -735,6 +735,16 @@ tbody tr:hover td {
 .badge-estado--resuelto {
   background-color: #d1fae5;
   color: #065f46;
+}
+
+.badge-estado--aprobado {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-estado--rechazado {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 /* ── Badges de prioridad ── */

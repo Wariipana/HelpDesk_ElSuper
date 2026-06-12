@@ -60,8 +60,8 @@
               <div class="detalle-campo">
                 <span class="detalle-label">Estado actual</span>
                 <span class="detalle-valor">
-                  <span class="badge-estado badge-estado--{{ ticket['estado'] | replace(' ', '-') }}">
-                    {{ ticket['estado'] | capitalize }}
+                  <span class="badge-estado badge-estado--{{ ticket['estado'] | replace('_', '-') }}">
+                    {{ ticket['estado'] | replace('_', ' ') | capitalize }}
                   </span>
                 </span>
               </div>
@@ -170,18 +170,18 @@
               <span class="gestion-seccion-label">Estado actual</span>
               <span class="badge-estado badge-estado--pendiente" style="margin-bottom: 12px; display: inline-block;">Pendiente</span>
               <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
-                <input type="hidden" name="estado" value="en progreso">
+                <input type="hidden" name="estado" value="en_proceso">
                 <input type="hidden" name="comentario_admin" value="{{ ticket['comentario_admin'] or '' }}">
                 <button type="submit" class="btn-avance-estado btn-avance--progreso">
                   <span class="material-symbols-outlined">play_arrow</span>
-                  Marcar como En progreso
+                  Marcar como En proceso
                 </button>
               </form>
             </div>
-            {% elif ticket['estado'] == 'en progreso' %}
+            {% elif ticket['estado'] == 'en_proceso' %}
             <div class="gestion-seccion">
               <span class="gestion-seccion-label">Estado actual</span>
-              <span class="badge-estado badge-estado--en-progreso" style="margin-bottom: 12px; display: inline-block;">En progreso</span>
+              <span class="badge-estado badge-estado--en-proceso" style="margin-bottom: 12px; display: inline-block;">En proceso</span>
               <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
                 <input type="hidden" name="estado" value="resuelto">
                 <input type="hidden" name="comentario_admin" value="{{ ticket['comentario_admin'] or '' }}">

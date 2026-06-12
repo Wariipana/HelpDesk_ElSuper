@@ -143,9 +143,9 @@
 
               <label for="estado">Cambiar estado:</label>
               <select id="estado" name="estado">
-                <option value="pendiente"   {% if not solicitud['estado'] or solicitud['estado'] == 'pendiente'   %}selected{% endif %}>Pendiente</option>
-                <option value="en progreso" {% if solicitud['estado'] == 'en progreso' %}selected{% endif %}>En progreso</option>
-                <option value="resuelto"    {% if solicitud['estado'] == 'resuelto'    %}selected{% endif %}>Resuelto</option>
+                <option value="pendiente"  {% if not solicitud['estado'] or solicitud['estado'] == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="aprobado"   {% if solicitud['estado'] == 'aprobado'  %}selected{% endif %}>Aprobado</option>
+                <option value="rechazado"  {% if solicitud['estado'] == 'rechazado' %}selected{% endif %}>Rechazado</option>
               </select>
 
               <label for="observacion_admin">Observacion:</label>
@@ -153,7 +153,7 @@
 
               <div class="gestion-nota">
                 <span class="material-symbols-outlined">info</span>
-                Al marcar como <strong>Resuelto</strong> se registrara tu usuario y la fecha/hora actual.
+                Al marcar como <strong>Aprobado</strong> o <strong>Rechazado</strong> se registrara tu usuario y la fecha/hora actual.
               </div>
 
               <input type="submit" value="Guardar cambios">

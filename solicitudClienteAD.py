@@ -173,7 +173,7 @@ def gestionar_solicitud(p_id, estado, observacion, resuelto_por_id):
         if connection:
             with connection:
                 with connection.cursor() as cursor:
-                    if estado == 'resuelto':
+                    if estado in ('aprobado', 'rechazado'):
                         sql = (
                             "UPDATE `solicitudes_cliente` "
                             "SET `estado` = %s, `observacion_admin` = %s, "

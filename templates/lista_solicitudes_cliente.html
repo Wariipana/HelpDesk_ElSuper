@@ -53,8 +53,8 @@
           <select id="f_estado" name="estado">
             <option value="">Todos</option>
             <option value="pendiente"   {% if filtros.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-            <option value="en progreso" {% if filtros.estado == 'en progreso' %}selected{% endif %}>En progreso</option>
-            <option value="resuelto"    {% if filtros.estado == 'resuelto' %}selected{% endif %}>Resuelto</option>
+            <option value="aprobado"  {% if filtros.estado == 'aprobado'  %}selected{% endif %}>Aprobado</option>
+            <option value="rechazado" {% if filtros.estado == 'rechazado' %}selected{% endif %}>Rechazado</option>
           </select>
         </div>
         <div class="filtro-acciones">
