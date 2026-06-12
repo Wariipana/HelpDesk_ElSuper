@@ -1,5 +1,6 @@
 import pymysql
-from flask import render_template, Flask, request, redirect, session, jsonify
+from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
+from flask import render_template, Flask, request, redirect, session, url_for
 
 from chatbot_helpdesk import encontrar_respuesta as chatbot_respuesta
 
@@ -38,14 +39,26 @@ def error_500(e):
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
-    try:
-        datos = request.get_json(force=True) or {}
-        pregunta = str(datos.get('pregunta', '')).strip()
-        if not pregunta:
-            return jsonify({'respuesta': 'Escribe una pregunta para continuar.'}), 400
-        return jsonify({'respuesta': chatbot_respuesta(pregunta)})
-    except Exception:
-        return jsonify({'respuesta': 'Ocurrió un error. Intenta de nuevo.'}), 500
+    pregunta = request.form.get('pregunta', '').strip()
+    if pregunta:
+        conversacion = session.setdefault('chatbot_conversacion', [])
+        conversacion.append({'tipo': 'usuario', 'texto': pregunta})
+        conversacion.append({'tipo': 'bot', 'texto': chatbot_respuesta(pregunta)})
+        session.modified = True
+
+    referrer = request.referrer or url_for('dashboard')
+    parsed = urlparse(referrer)
+    params = parse_qs(parsed.query)
+    params.pop('chatbot', None)
+    params['chatbot'] = ['open']
+    return redirect(urlunparse(parsed._replace(query=urlencode(params, doseq=True))))
+
+
+@app.route('/chatbot/limpiar', methods=['POST'])
+def chatbot_limpiar():
+    session.pop('chatbot_conversacion', None)
+    session.modified = True
+    return redirect(request.referrer or url_for('dashboard'))
 
 
 @app.route('/')

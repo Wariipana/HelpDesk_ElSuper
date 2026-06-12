@@ -58,7 +58,42 @@
   </div>
 </div>
 
-<script src="/static/chatbot.js"></script>
+{# ── Chatbot Widget ── #}
+{% set _conv = session.get('chatbot_conversacion', []) %}
+<details class="chatbot-widget" {% if request.args.get('chatbot') == 'open' %}open{% endif %}>
+  <summary class="chatbot-fab" title="Ayuda">
+    <span class="material-symbols-outlined">support_agent</span>
+  </summary>
+
+  <div class="chatbot-panel">
+    <div class="chatbot-header">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span>Asistente HelpDesk</span>
+    </div>
+
+    <div class="chatbot-mensajes">
+      {% if not _conv %}
+        <div class="cb-burbuja cb-bot">Hola, soy el asistente del HelpDesk. ¿En qué puedo ayudarte?</div>
+      {% else %}
+        {% for m in _conv | reverse %}
+          <div class="cb-burbuja cb-{{ m.tipo }}">{{ m.texto }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <form class="chatbot-input-fila" method="post" action="{{ url_for('chatbot') }}">
+      <input class="chatbot-input" type="text" name="pregunta"
+             placeholder="Escribe tu pregunta..." autocomplete="off" required />
+      <button class="chatbot-enviar" type="submit">Enviar</button>
+    </form>
+
+    {% if _conv %}
+    <form method="post" action="{{ url_for('chatbot_limpiar') }}" style="text-align:center;padding:4px 12px 10px;">
+      <button type="submit" class="chatbot-limpiar">Limpiar conversación</button>
+    </form>
+    {% endif %}
+  </div>
+</details>
 <script>
   (function () {
     var toggle = document.getElementById('sidebar-toggle');
