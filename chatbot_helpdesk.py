@@ -255,9 +255,8 @@ FAQ = {
         "Sí. Tickets, solicitudes, movimientos, sedes y usuarios se almacenan en la base de datos "
         "del sistema y quedan disponibles para consultarlos y gestionarlos después."
     ),
-    "¿Qué puede hacer este chatbot?": (
-        "Puedo responder dudas frecuentes sobre cómo usar el HelpDesk: crear y gestionar tickets, "
-        "registrar solicitudes de cliente, movimientos de equipo, sedes, usuarios y temas de sesión."
+    "¿Cómo registro una venta?": (
+        "Esto no es un sistema de ventas"
     ),
 }
 
