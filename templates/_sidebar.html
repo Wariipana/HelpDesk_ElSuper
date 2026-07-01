@@ -14,9 +14,9 @@
       <span class="material-symbols-outlined">confirmation_number</span>
       Tickets
     </a>
-    <a href="{{ url_for('listar_solicitudes_cliente_view') }}">
-      <span class="material-symbols-outlined">person_raised_hand</span>
-      Solicitudes de Cliente
+    <a href="{{ url_for('listar_trabajadores_view') }}">
+      <span class="material-symbols-outlined">badge</span>
+      Trabajadores
     </a>
     {% if session.get('usuario_rol') == 'admin_ti' %}
     <a href="{{ url_for('listar_movimientos_equipo_view') }}">

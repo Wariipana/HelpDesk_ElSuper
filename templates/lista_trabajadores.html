@@ -1,0 +1,150 @@
+{% from '_paginacion.html' import paginar %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Trabajadores - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="header-list">
+      <h1>Trabajadores</h1>
+      <div class="header-acciones">
+        <a href="{{ url_for('reporte_trabajadores', formato='csv', **filtros) }}" class="btn-reporte btn-reporte--csv">
+          <span class="material-symbols-outlined">table_view</span> CSV
+        </a>
+        <a href="{{ url_for('reporte_trabajadores', formato='pdf', **filtros) }}" class="btn-reporte btn-reporte--pdf">
+          <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+        </a>
+        <a href="{{ url_for('form_trabajador') }}" class="btn-nuevo">+ Nuevo Trabajador</a>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <form method="GET" action="{{ url_for('listar_trabajadores_view') }}" class="filtros-form">
+      <div class="filtros-fila">
+        <div class="filtro-grupo">
+          <label for="f_fecha_desde">Inicio desde</label>
+          <input type="date" id="f_fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_fecha_hasta">Inicio hasta</label>
+          <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+        </div>
+        {% if session.get('usuario_rol') == 'admin_ti' and sedes %}
+        <div class="filtro-grupo">
+          <label for="f_sede">Sede</label>
+          <select id="f_sede" name="sede_id">
+            <option value="">Todas</option>
+            {% for sede in sedes %}
+            <option value="{{ sede['id'] }}" {% if filtros.sede_id == sede['id']|string %}selected{% endif %}>{{ sede['nombre'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        <div class="filtro-grupo">
+          <label for="f_rol">Rol</label>
+          <input type="text" id="f_rol" name="rol" value="{{ filtros.rol }}" placeholder="Cajero, Supervisor...">
+        </div>
+        <div class="filtro-grupo">
+          <label for="f_estado">Estado</label>
+          <select id="f_estado" name="estado">
+            <option value="">Todos</option>
+            <option value="vigente"       {% if filtros.estado == 'vigente'       %}selected{% endif %}>Vigente</option>
+            <option value="vencido"       {% if filtros.estado == 'vencido'       %}selected{% endif %}>Vencido</option>
+            <option value="sin_fecha_fin" {% if filtros.estado == 'sin_fecha_fin' %}selected{% endif %}>Sin fecha fin</option>
+          </select>
+        </div>
+        <div class="filtro-acciones">
+          <button type="submit" class="btn-filtrar">Filtrar</button>
+          <a href="{{ url_for('listar_trabajadores_view') }}" class="btn-limpiar">Limpiar</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="tabla-info">
+      <span>{{ total }} resultado(s) &mdash; pagina {{ pagina }} de {{ total_paginas }}</span>
+    </div>
+
+    <div class="tabla-contenedor">
+      <table id="tabla-principal">
+        <thead>
+          <tr>
+            <th class="col-ordenable" data-col="0">ID <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="1">Trabajador <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="2">Documento <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="3">Rol <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="4">Inicio <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="5">Fin <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="6">Estado <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="7">Sede <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="8">Registrado por <span class="orden-icono"></span></th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if trabajadores %}
+            {% for trabajador in trabajadores %}
+            <tr>
+              <td data-label="ID">{{ trabajador['id'] }}</td>
+              <td data-label="Trabajador">{{ trabajador['nombre'] }} {{ trabajador['apellido'] }}</td>
+              <td data-label="Documento">{{ trabajador['tipo_documento'] | upper }} {{ trabajador['numero_documento'] }}</td>
+              <td data-label="Rol">{{ trabajador['rol'] }}</td>
+              <td data-label="Inicio">{{ trabajador['fecha_inicio'].strftime('%d/%m/%Y') if trabajador['fecha_inicio'] else '—' }}</td>
+              <td data-label="Fin">{{ trabajador['fecha_fin'].strftime('%d/%m/%Y') if trabajador['fecha_fin'] else '—' }}</td>
+              <td data-label="Estado">
+                {% if trabajador['estado_rol'] == 'vencido' %}
+                  <span class="badge-estado badge-estado--vencido">
+                    <span class="material-symbols-outlined badge-icono">warning</span>
+                    Vencido
+                  </span>
+                {% elif trabajador['estado_rol'] == 'vigente' %}
+                  <span class="badge-estado badge-estado--vigente">Vigente</span>
+                {% else %}
+                  <span class="badge-estado badge-estado--sin_fecha_fin">Sin fecha fin</span>
+                {% endif %}
+              </td>
+              <td data-label="Sede">{{ trabajador['sede'] }}</td>
+              <td data-label="Registrado por">{{ trabajador['registrado_por'] }}</td>
+              <td data-label="Acciones">
+                <div class="acciones">
+                  <a href="{{ url_for('cargar_formulario_editar_trabajador', id_trabajador=trabajador['id']) }}" class="btn-editar">Editar</a>
+                  <a href="#"
+                     class="btn-eliminar"
+                     onclick="mostrarModalConfirmar('¿Seguro que deseas eliminar a {{ trabajador['nombre'] }} {{ trabajador['apellido'] }}?', '{{ url_for('eliminar_trabajador_view', id_trabajador=trabajador['id']) }}'); return false;">
+                    Eliminar
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="10" class="sin-registros">No existen registros</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    {{ paginar(pagina, total_paginas, filtros) }}
+
+  </div>
+
+  <div id="modal-confirmar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar eliminacion</h3>
+      <p id="modal-confirmar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>
+        <a id="modal-confirmar-btn" href="#" class="btn-accion">Eliminar</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script src="/static/tabla_orden.js"></script>
+</body>
+</html>

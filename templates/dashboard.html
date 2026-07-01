@@ -13,6 +13,53 @@
     <div class="header-list">
       <h1>Bienvenido</h1>
     </div>
+
+    <section class="dashboard-seccion">
+      <h2 class="dashboard-subtitulo">Tickets por estado</h2>
+      <div class="dashboard-cards">
+
+        <a href="/listar-tickets" class="dashboard-card dashboard-card--total">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">confirmation_number</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_tickets.total }}</span>
+            <span class="dashboard-card-label">Total de tickets</span>
+          </div>
+        </a>
+
+        <a href="/listar-tickets?estado=pendiente" class="dashboard-card dashboard-card--pendiente">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">schedule</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_tickets.pendiente }}</span>
+            <span class="dashboard-card-label">Pendientes</span>
+          </div>
+        </a>
+
+        <a href="/listar-tickets?estado=en_proceso" class="dashboard-card dashboard-card--en-proceso">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">autorenew</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_tickets.en_proceso }}</span>
+            <span class="dashboard-card-label">En proceso</span>
+          </div>
+        </a>
+
+        <a href="/listar-tickets?estado=resuelto" class="dashboard-card dashboard-card--resuelto">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">task_alt</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_tickets.resuelto }}</span>
+            <span class="dashboard-card-label">Resueltos</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
   </div>
 </body>
 </html>

@@ -39,6 +39,14 @@ function validarCampo(campo) {
         if (valor === '') {
             mensaje = 'La fecha es obligatoria.';
         }
+    } else if (tipo === 'fecha-fin') {
+        if (valor !== '') {
+            var form = campo.closest('form');
+            var inicio = form.querySelector('[name="fecha_inicio"]');
+            if (inicio && inicio.value !== '' && valor < inicio.value) {
+                mensaje = 'La fecha de fin no puede ser anterior a la de inicio.';
+            }
+        }
     }
 
     var errorSpan = null;

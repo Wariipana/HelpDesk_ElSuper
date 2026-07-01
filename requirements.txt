@@ -2,3 +2,5 @@ flask
 pymysql
 scikit-learn
 numpy
+flask-jwt-extended
+reportlab

@@ -13,7 +13,15 @@
   <div class="main-content">
     <div class="header-list">
       <h1>Solicitudes de Cliente</h1>
-      <a href="{{ url_for('form_solicitud_cliente') }}" class="btn-nuevo">+ Nueva Solicitud</a>
+      <div class="header-acciones">
+        <a href="{{ url_for('reporte_solicitudes_cliente', formato='csv', **filtros) }}" class="btn-reporte btn-reporte--csv">
+          <span class="material-symbols-outlined">table_view</span> CSV
+        </a>
+        <a href="{{ url_for('reporte_solicitudes_cliente', formato='pdf', **filtros) }}" class="btn-reporte btn-reporte--pdf">
+          <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+        </a>
+        <a href="{{ url_for('form_solicitud_cliente') }}" class="btn-nuevo">+ Nueva Solicitud</a>
+      </div>
     </div>
 
     <!-- Filtros -->

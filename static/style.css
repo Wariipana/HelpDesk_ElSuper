@@ -747,6 +747,29 @@ tbody tr:hover td {
   color: #991b1b;
 }
 
+.badge-estado--vigente {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-estado--vencido {
+  background-color: #fee2e2;
+  color: #991b1b;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.badge-estado--sin_fecha_fin {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.badge-estado .badge-icono {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* ── Badges de prioridad ── */
 .badge-prioridad {
   display: inline-block;
@@ -1463,4 +1486,148 @@ details.chatbot-widget > summary.chatbot-fab:hover { background: var(--rojo-oscu
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
+}
+
+/* ── Botones de exportacion de reportes ── */
+.header-acciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-reporte {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--borde);
+  background: var(--blanco);
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.btn-reporte .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.btn-reporte--csv {
+  color: #065f46;
+}
+.btn-reporte--csv:hover {
+  background-color: #d1fae5;
+  border-color: #059669;
+}
+
+.btn-reporte--pdf {
+  color: var(--rojo);
+}
+.btn-reporte--pdf:hover {
+  background-color: var(--rojo-claro);
+  border-color: var(--rojo);
+}
+
+/* ── Dashboard: tarjetas de tickets por estado ── */
+.dashboard-seccion {
+  margin-top: 24px;
+}
+
+.dashboard-subtitulo {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--texto);
+  margin: 0 0 16px 0;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+}
+
+.dashboard-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--borde);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--sombra-md);
+  transform: translateY(-2px);
+}
+
+.dashboard-card-icono {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-card-icono .material-symbols-outlined {
+  font-size: 28px;
+}
+
+.dashboard-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card-numero {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--texto);
+}
+
+.dashboard-card-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--texto-muted);
+}
+
+.dashboard-card--total {
+  border-left-color: var(--rojo);
+}
+.dashboard-card--total .dashboard-card-icono {
+  background-color: var(--rojo-claro);
+  color: var(--rojo);
+}
+
+.dashboard-card--pendiente {
+  border-left-color: #d97706;
+}
+.dashboard-card--pendiente .dashboard-card-icono {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.dashboard-card--en-proceso {
+  border-left-color: #2563eb;
+}
+.dashboard-card--en-proceso .dashboard-card-icono {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.dashboard-card--resuelto {
+  border-left-color: #059669;
+}
+.dashboard-card--resuelto .dashboard-card-icono {
+  background-color: #d1fae5;
+  color: #065f46;
 }

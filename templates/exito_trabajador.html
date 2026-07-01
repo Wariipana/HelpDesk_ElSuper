@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trabajador Registrado - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <div class="exito-wrap">
+      <div class="exito-card">
+        <h1>Trabajador Registrado</h1>
+        <p>El trabajador ha sido registrado correctamente en el sistema.</p>
+        <a href="{{ url_for('listar_trabajadores_view') }}" class="btn-accion">Ver Trabajadores</a>
+        <a href="{{ url_for('form_trabajador') }}" class="btn-secundario">Registrar otro trabajador</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

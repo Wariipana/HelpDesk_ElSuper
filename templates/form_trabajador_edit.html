@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Trabajador - ElSuper HelpDesk</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    <h1>Editar Trabajador</h1>
+    <form id="form-trabajador-edit" action="/actualizar-trabajador" method="post">
+      <input type="hidden" name="id" value="{{ trabajador['id'] }}">
+
+      <label for="nombre">Nombre:</label><br>
+      <input type="text" id="nombre" name="nombre" value="{{ trabajador['nombre'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="apellido">Apellido:</label><br>
+      <input type="text" id="apellido" name="apellido" value="{{ trabajador['apellido'] }}" data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="tipo_documento">Tipo de documento:</label><br>
+      <select id="tipo_documento" name="tipo_documento" data-validar="requerido">
+        <option value="dni"       {% if trabajador['tipo_documento'] == 'dni'       %}selected{% endif %}>DNI</option>
+        <option value="ce"        {% if trabajador['tipo_documento'] == 'ce'        %}selected{% endif %}>CE</option>
+        <option value="pasaporte" {% if trabajador['tipo_documento'] == 'pasaporte' %}selected{% endif %}>Pasaporte</option>
+        <option value="ruc"       {% if trabajador['tipo_documento'] == 'ruc'       %}selected{% endif %}>RUC</option>
+        <option value="ptp"       {% if trabajador['tipo_documento'] == 'ptp'       %}selected{% endif %}>PTP</option>
+        <option value="otro"      {% if trabajador['tipo_documento'] == 'otro'      %}selected{% endif %}>Otro</option>
+      </select><br>
+      <span class="campo-error"></span>
+
+      <label for="numero_documento">Numero de documento:</label><br>
+      <input type="text" id="numero_documento" name="numero_documento" value="{{ trabajador['numero_documento'] }}" data-validar="documento"><br>
+      <span class="campo-error"></span>
+
+      <label for="telefono">Telefono:</label><br>
+      <input type="text" id="telefono" name="telefono" value="{{ trabajador['telefono'] }}" data-validar="telefono"><br>
+      <span class="campo-error"></span>
+
+      <label for="rol">Rol / Cargo:</label><br>
+      <input type="text" id="rol" name="rol" value="{{ trabajador['rol'] }}" placeholder="Cajero, Supervisor, Vendedor..." data-validar="requerido"><br>
+      <span class="campo-error"></span>
+
+      <label for="fecha_inicio">Fecha de inicio en el rol:</label><br>
+      <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ trabajador['fecha_inicio'].strftime('%Y-%m-%d') if trabajador['fecha_inicio'] else '' }}" data-validar="fecha"><br>
+      <span class="campo-error"></span>
+
+      <label for="fecha_fin">Fecha de fin (opcional):</label><br>
+      <input type="date" id="fecha_fin" name="fecha_fin" value="{{ trabajador['fecha_fin'].strftime('%Y-%m-%d') if trabajador['fecha_fin'] else '' }}" data-validar="fecha-fin"><br>
+      <span class="campo-error"></span>
+
+      <div class="campo-sesion">
+        <span class="campo-sesion-label">Sede</span>
+        <span class="campo-sesion-valor">
+          <span class="material-symbols-outlined">location_on</span>
+          {{ session.get('usuario_sede') or '—' }}
+        </span>
+      </div>
+
+      <div class="campo-sesion">
+        <span class="campo-sesion-label">Registrado por</span>
+        <span class="campo-sesion-valor">
+          <span class="material-symbols-outlined">account_circle</span>
+          {{ session.get('usuario_nombre') or '—' }}
+        </span>
+      </div>
+
+      <input type="submit" value="Guardar Cambios">
+    </form>
+  </div>
+
+  <div id="modal-error" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>No se pudo proceder</h3>
+      <ul id="modal-lista-errores"></ul>
+      <a href="javascript:void(0)" class="btn-accion" onclick="cerrarModal()">Cerrar</a>
+    </div>
+  </div>
+
+  <div id="modal-guardar" class="modal-overlay modal-oculto">
+    <div class="modal-caja">
+      <h3>Confirmar guardado</h3>
+      <p id="modal-guardar-texto"></p>
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModalGuardar()">Cancelar</button>
+        <button class="btn-accion" onclick="confirmarGuardar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/validaciones.js"></script>
+  <script>configurarFormulario('form-trabajador-edit', '¿Esta seguro que desea guardar los cambios del trabajador?');</script>
+</body>
+</html>

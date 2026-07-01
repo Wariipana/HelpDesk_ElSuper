@@ -1,0 +1,480 @@
+{
+  "info": {
+    "name": "HelpDesk API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login",
+              "host": ["{{base_url}}"],
+              "path": ["api_login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Leer todos los usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leerusuarios",
+              "host": ["{{base_url}}"],
+              "path": ["api_leerusuarios"]
+            }
+          }
+        },
+        {
+          "name": "Leer usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leerusuarioxid/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_leerusuarioxid", "1"]
+            }
+          }
+        },
+        {
+          "name": "Guardar usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"Juan Perez\",\n  \"username\": \"jperez\",\n  \"password\": \"1234\",\n  \"rol\": \"admin_tienda\",\n  \"sede_id\": 1,\n  \"activo\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_guardarusuario",
+              "host": ["{{base_url}}"],
+              "path": ["api_guardarusuario"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nombre_completo\": \"Juan Perez Actualizado\",\n  \"username\": \"jperez\",\n  \"password\": \"1234\",\n  \"rol\": \"admin_tienda\",\n  \"sede_id\": 1,\n  \"activo\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_actualizarusuario",
+              "host": ["{{base_url}}"],
+              "path": ["api_actualizarusuario"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_eliminarusuario/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_eliminarusuario", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sedes",
+      "item": [
+        {
+          "name": "Leer todas las sedes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leersedes",
+              "host": ["{{base_url}}"],
+              "path": ["api_leersedes"]
+            }
+          }
+        },
+        {
+          "name": "Leer sede por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leersedexid/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_leersedexid", "1"]
+            }
+          }
+        },
+        {
+          "name": "Guardar sede",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sede Norte\",\n  \"direccion\": \"Av. Principal 123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_guardarsede",
+              "host": ["{{base_url}}"],
+              "path": ["api_guardarsede"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar sede",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nombre\": \"Sede Norte Actualizada\",\n  \"direccion\": \"Av. Principal 456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_actualizarsede",
+              "host": ["{{base_url}}"],
+              "path": ["api_actualizarsede"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar sede",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_eliminarsede/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_eliminarsede", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Leer todos los tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leertickets",
+              "host": ["{{base_url}}"],
+              "path": ["api_leertickets"]
+            }
+          }
+        },
+        {
+          "name": "Leer ticket por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leerticketxid/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_leerticketxid", "1"]
+            }
+          }
+        },
+        {
+          "name": "Guardar ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"PC no enciende\",\n  \"descripcion\": \"La computadora del area de caja no enciende desde esta manana\",\n  \"categoria\": \"hardware\",\n  \"prioridad\": \"alta\",\n  \"equipo_afectado\": \"PC\",\n  \"cantidad_equipos\": 1,\n  \"nombre_contacto\": \"Maria Lopez\",\n  \"telefono_contacto\": \"987654321\",\n  \"sede_id\": 1,\n  \"creado_por\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_guardarticket",
+              "host": ["{{base_url}}"],
+              "path": ["api_guardarticket"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar ticket",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"titulo\": \"PC no enciende - actualizado\",\n  \"descripcion\": \"La computadora del area de caja no enciende desde esta manana\",\n  \"categoria\": \"hardware\",\n  \"prioridad\": \"alta\",\n  \"equipo_afectado\": \"PC\",\n  \"cantidad_equipos\": 1,\n  \"nombre_contacto\": \"Maria Lopez\",\n  \"telefono_contacto\": \"987654321\",\n  \"sede_id\": 1,\n  \"creado_por\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_actualizarticket",
+              "host": ["{{base_url}}"],
+              "path": ["api_actualizarticket"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_eliminarticket/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_eliminarticket", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Solicitudes Cliente",
+      "item": [
+        {
+          "name": "Leer todas las solicitudes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leersolicitudescliente",
+              "host": ["{{base_url}}"],
+              "path": ["api_leersolicitudescliente"]
+            }
+          }
+        },
+        {
+          "name": "Leer solicitud por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leersolicitudclientexid/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_leersolicitudclientexid", "1"]
+            }
+          }
+        },
+        {
+          "name": "Guardar solicitud",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_cliente\": \"Carlos\",\n  \"apellido_cliente\": \"Ramirez\",\n  \"tipo_documento\": \"DNI\",\n  \"numero_documento\": \"12345678\",\n  \"telefono_cliente\": \"987654321\",\n  \"email_cliente\": \"carlos@correo.com\",\n  \"tipo\": \"reclamo\",\n  \"motivo\": \"Producto defectuoso\",\n  \"sede_id\": 1,\n  \"solicitado_por\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_guardarsolicitudcliente",
+              "host": ["{{base_url}}"],
+              "path": ["api_guardarsolicitudcliente"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar solicitud",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nombre_cliente\": \"Carlos\",\n  \"apellido_cliente\": \"Ramirez\",\n  \"tipo_documento\": \"DNI\",\n  \"numero_documento\": \"12345678\",\n  \"telefono_cliente\": \"987654321\",\n  \"email_cliente\": \"carlos@correo.com\",\n  \"tipo\": \"queja\",\n  \"motivo\": \"Mal servicio\",\n  \"sede_id\": 1,\n  \"solicitado_por\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_actualizarsolicitudcliente",
+              "host": ["{{base_url}}"],
+              "path": ["api_actualizarsolicitudcliente"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar solicitud",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_eliminarsolicitudcliente/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_eliminarsolicitudcliente", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movimientos de Equipo",
+      "item": [
+        {
+          "name": "Leer todos los movimientos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leermovimientosequipo",
+              "host": ["{{base_url}}"],
+              "path": ["api_leermovimientosequipo"]
+            }
+          }
+        },
+        {
+          "name": "Leer movimiento por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_leermovimientoequipoxid/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_leermovimientoequipoxid", "1"]
+            }
+          }
+        },
+        {
+          "name": "Guardar movimiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"ingreso\",\n  \"tipo_equipo\": \"Laptop\",\n  \"modelo\": \"Dell Latitude 5420\",\n  \"numero_serie\": \"SN123456\",\n  \"sede_id\": 1,\n  \"responsable\": \"Pedro Torres\",\n  \"fecha\": \"2026-06-23\",\n  \"registrado_por\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_guardarmovimientoequipo",
+              "host": ["{{base_url}}"],
+              "path": ["api_guardarmovimientoequipo"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar movimiento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"tipo\": \"salida\",\n  \"tipo_equipo\": \"Laptop\",\n  \"modelo\": \"Dell Latitude 5420\",\n  \"numero_serie\": \"SN123456\",\n  \"sede_id\": 1,\n  \"responsable\": \"Pedro Torres\",\n  \"fecha\": \"2026-06-23\",\n  \"registrado_por\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_actualizarmovimientoequipo",
+              "host": ["{{base_url}}"],
+              "path": ["api_actualizarmovimientoequipo"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar movimiento",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_eliminarmovimientoequipo/1",
+              "host": ["{{base_url}}"],
+              "path": ["api_eliminarmovimientoequipo", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

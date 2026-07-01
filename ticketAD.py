@@ -118,6 +118,36 @@ def listar_tickets_filtrado(sede_id_fijo=None, fecha_desde=None, fecha_hasta=Non
         return [], 0
 
 
+def contar_tickets_por_estado(sede_id_fijo=None):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT t.`estado`, COUNT(*) AS `cantidad` "
+                        "FROM `tickets` t "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+                    if sede_id_fijo:
+                        sql += "AND t.`sede_id` = %s "
+                        params.append(sede_id_fijo)
+                    sql += "GROUP BY t.`estado`"
+
+                    cursor.execute(sql, params)
+                    filas = cursor.fetchall()
+
+                    conteo = {'pendiente': 0, 'en_proceso': 0, 'resuelto': 0}
+                    for fila in filas:
+                        conteo[fila['estado']] = fila['cantidad']
+                    conteo['total'] = sum(conteo.values())
+                    return conteo
+        return {'pendiente': 0, 'en_proceso': 0, 'resuelto': 0, 'total': 0}
+    except:
+        return {'pendiente': 0, 'en_proceso': 0, 'resuelto': 0, 'total': 0}
+
+
 def listar_tickets_x_sede(sede_id):
     try:
         connection = obtenerconexion()

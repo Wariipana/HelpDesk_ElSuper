@@ -13,7 +13,15 @@
   <div class="main-content">
     <div class="header-list">
       <h1>Movimientos de Equipo</h1>
-      <a href="{{ url_for('form_movimiento_equipo') }}" class="btn-nuevo">+ Nuevo Movimiento</a>
+      <div class="header-acciones">
+        <a href="{{ url_for('reporte_movimientos_equipo', formato='csv', **filtros) }}" class="btn-reporte btn-reporte--csv">
+          <span class="material-symbols-outlined">table_view</span> CSV
+        </a>
+        <a href="{{ url_for('reporte_movimientos_equipo', formato='pdf', **filtros) }}" class="btn-reporte btn-reporte--pdf">
+          <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+        </a>
+        <a href="{{ url_for('form_movimiento_equipo') }}" class="btn-nuevo">+ Nuevo Movimiento</a>
+      </div>
     </div>
 
     <!-- Filtros -->
