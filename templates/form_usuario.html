@@ -28,6 +28,7 @@
       <select id="rol" name="rol" data-validar="requerido">
         <option value="admin_ti">Admin TI</option>
         <option value="admin_tienda">Admin Tienda</option>
+        <option value="supervisor">Supervisor</option>
       </select><br>
       <span class="campo-error"></span>
 
@@ -78,7 +79,7 @@
       var sedeLabel  = document.querySelector('label[for="sede_id"]');
 
       function actualizarSede() {
-        if (rolSelect.value === 'admin_ti') {
+        if (rolSelect.value === 'admin_ti' || rolSelect.value === 'supervisor') {
           sedeSelect.removeAttribute('data-validar');
           sedeSelect.value = '';
           sedeSelect.classList.remove('campo-invalido', 'campo-valido');

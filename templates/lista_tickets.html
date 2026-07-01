@@ -35,7 +35,7 @@
           <label for="f_fecha_hasta">Hasta</label>
           <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
         </div>
-        {% if session.get('usuario_rol') == 'admin_ti' and sedes %}
+        {% if session.get('usuario_rol') in ('admin_ti', 'supervisor') and sedes %}
         <div class="filtro-grupo">
           <label for="f_sede">Sede</label>
           <select id="f_sede" name="sede_id">

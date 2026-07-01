@@ -18,7 +18,7 @@
       <span class="material-symbols-outlined">badge</span>
       Trabajadores
     </a>
-    {% if session.get('usuario_rol') == 'admin_ti' %}
+    {% if session.get('usuario_rol') in ('admin_ti', 'supervisor') %}
     <a href="{{ url_for('listar_movimientos_equipo_view') }}">
       <span class="material-symbols-outlined">move_item</span>
       Movimientos de Equipo
@@ -48,6 +48,8 @@
             {{ session.get('usuario_sede') }}
           </span>
         {% endif %}
+      {% elif session.get('usuario_rol') == 'supervisor' %}
+        <span class="sidebar-user-cargo">Supervisor</span>
       {% else %}
         <span class="sidebar-user-cargo">Admin. del Sistema</span>
       {% endif %}

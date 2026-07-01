@@ -35,7 +35,7 @@
           <label for="f_fecha_hasta">Hasta</label>
           <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
         </div>
-        {% if session.get('usuario_rol') == 'admin_ti' and sedes %}
+        {% if session.get('usuario_rol') in ('admin_ti', 'supervisor') and sedes %}
         <div class="filtro-grupo">
           <label for="f_sede">Sede</label>
           <select id="f_sede" name="sede_id">
@@ -109,7 +109,7 @@
               <td data-label="Fecha">{{ solicitud['created_at'].strftime('%d/%m/%Y') if solicitud['created_at'] else '—' }}</td>
               <td data-label="Acciones">
                 <div class="acciones">
-                  {% if session.get('usuario_rol') == 'admin_ti' %}
+                  {% if session.get('usuario_rol') in ('admin_ti', 'supervisor') %}
                     <a href="{{ url_for('gestionar_solicitud_view', id_solicitud=solicitud['id']) }}" class="btn-gestionar">
                       <span class="material-symbols-outlined">open_in_new</span>
                       Gestionar

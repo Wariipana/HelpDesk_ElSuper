@@ -1,7 +1,40 @@
+import json
+from datetime import datetime
+
 import pymysql
 
 from ticketClass import Ticket
 from conexionBD import obtenerconexion
+
+
+# -----------------------------------------------
+# Historial de comentarios embebido como JSON en `comentario_admin`.
+# Cada entrada: {"autor", "rol", "fecha", "texto"}.
+# Se mantiene retrocompatibilidad con comentarios antiguos en texto plano.
+def parsear_historial_comentarios(valor_crudo):
+    if not valor_crudo:
+        return []
+    try:
+        datos = json.loads(valor_crudo)
+        if isinstance(datos, list):
+            return datos
+        # Un JSON que no es lista: lo tratamos como texto plano
+    except (ValueError, TypeError):
+        pass
+    # Comentario antiguo en texto plano: lo envolvemos como una entrada legacy
+    texto = str(valor_crudo).strip()
+    if not texto:
+        return []
+    return [{
+        'autor': 'Sistema',
+        'rol': '',
+        'fecha': '',
+        'texto': texto,
+    }]
+
+
+def _serializar_historial(historial):
+    return json.dumps(historial, ensure_ascii=False)
 
 # -----------------------------------------------
 def insertar_ticket(objTicket: Ticket):
@@ -182,14 +215,16 @@ def obtener_ticket_detalle(p_id):
                         "t.`equipo_afectado`, t.`cantidad_equipos`, "
                         "t.`nombre_contacto`, t.`telefono_contacto`, "
                         "t.`fecha_limite`, t.`created_at`, t.`updated_at`, "
-                        "t.`resuelto_at`, "
+                        "t.`resuelto_at`, t.`confirmado_at`, "
                         "s.`nombre` AS `sede`, "
                         "uc.`nombre_completo` AS `creado_por`, "
-                        "ur.`nombre_completo` AS `resuelto_por` "
+                        "ur.`nombre_completo` AS `resuelto_por`, "
+                        "us.`nombre_completo` AS `confirmado_por` "
                         "FROM `tickets` t "
                         "LEFT JOIN `sedes` s ON t.`sede_id` = s.`id` "
                         "LEFT JOIN `usuarios` uc ON t.`creado_por` = uc.`id` "
                         "LEFT JOIN `usuarios` ur ON t.`resuelto_por` = ur.`id` "
+                        "LEFT JOIN `usuarios` us ON t.`confirmado_por` = us.`id` "
                         "WHERE t.`id` = %s"
                     )
                     cursor.execute(sql, p_id)
@@ -199,7 +234,7 @@ def obtener_ticket_detalle(p_id):
         raise
 
 
-def gestionar_ticket(p_id, estado, comentario, resuelto_por_id):
+def cambiar_estado_ticket(p_id, estado, resuelto_por_id):
     try:
         connection = obtenerconexion()
         if connection:
@@ -208,18 +243,85 @@ def gestionar_ticket(p_id, estado, comentario, resuelto_por_id):
                     if estado == 'resuelto':
                         sql = (
                             "UPDATE `tickets` "
-                            "SET `estado` = %s, `comentario_admin` = %s, "
+                            "SET `estado` = %s, "
                             "`resuelto_por` = %s, `resuelto_at` = NOW() "
                             "WHERE `id` = %s"
                         )
-                        cursor.execute(sql, (estado, comentario, resuelto_por_id, p_id))
+                        cursor.execute(sql, (estado, resuelto_por_id, p_id))
                     else:
+                        # Si el ticket sale de 'resuelto', se invalida la
+                        # confirmacion previa del supervisor (ya no esta finalizado).
                         sql = (
                             "UPDATE `tickets` "
-                            "SET `estado` = %s, `comentario_admin` = %s "
+                            "SET `estado` = %s, "
+                            "`confirmado_por` = NULL, `confirmado_at` = NULL "
                             "WHERE `id` = %s"
                         )
-                        cursor.execute(sql, (estado, comentario, p_id))
+                        cursor.execute(sql, (estado, p_id))
+                connection.commit()
+            return True
+        return False
+    except pymysql.MySQLError as e:
+        return e.args[1]
+
+
+def confirmar_ticket(p_id, supervisor_id):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT `estado` FROM `tickets` WHERE `id` = %s", p_id)
+                    fila = cursor.fetchone()
+                    if fila is None:
+                        return 'Ticket no encontrado.'
+                    # Solo se puede confirmar un ticket ya finalizado (resuelto).
+                    if fila['estado'] != 'resuelto':
+                        return 'Solo se puede confirmar un ticket resuelto.'
+
+                    cursor.execute(
+                        "UPDATE `tickets` "
+                        "SET `confirmado_por` = %s, `confirmado_at` = NOW() "
+                        "WHERE `id` = %s",
+                        (supervisor_id, p_id)
+                    )
+                connection.commit()
+            return True
+        return False
+    except pymysql.MySQLError as e:
+        return e.args[1]
+
+
+def agregar_comentario_ticket(p_id, texto, autor, rol):
+    texto = (texto or '').strip()
+    if not texto:
+        return 'El comentario no puede estar vacio.'
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT `comentario_admin` FROM `tickets` WHERE `id` = %s",
+                        p_id
+                    )
+                    fila = cursor.fetchone()
+                    if fila is None:
+                        return 'Ticket no encontrado.'
+
+                    historial = parsear_historial_comentarios(fila['comentario_admin'])
+                    historial.append({
+                        'autor': autor or 'Usuario',
+                        'rol': rol or '',
+                        'fecha': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                        'texto': texto,
+                    })
+
+                    cursor.execute(
+                        "UPDATE `tickets` SET `comentario_admin` = %s WHERE `id` = %s",
+                        (_serializar_historial(historial), p_id)
+                    )
                 connection.commit()
             return True
         return False

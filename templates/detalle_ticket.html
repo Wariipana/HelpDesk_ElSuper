@@ -150,6 +150,17 @@
               </div>
             </div>
             {% endif %}
+            {% if ticket['confirmado_por'] %}
+            <div class="detalle-confirmado">
+              <span class="material-symbols-outlined">verified</span>
+              <div>
+                <span class="detalle-confirmado-titulo">Confirmado por supervisor</span>
+                <span class="detalle-confirmado-detalle">
+                  {{ ticket['confirmado_por'] }} · {{ ticket['confirmado_at'].strftime('%d/%m/%Y %H:%M') if ticket['confirmado_at'] else '' }}
+                </span>
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
 
@@ -164,53 +175,120 @@
           </div>
           <div class="detalle-card-body">
 
-            <!-- Botón de avance de estado -->
-            {% if ticket['estado'] == 'pendiente' %}
-            <div class="gestion-seccion">
-              <span class="gestion-seccion-label">Estado actual</span>
-              <span class="badge-estado badge-estado--pendiente" style="margin-bottom: 12px; display: inline-block;">Pendiente</span>
-              <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
-                <input type="hidden" name="estado" value="en_proceso">
-                <input type="hidden" name="comentario_admin" value="{{ ticket['comentario_admin'] or '' }}">
-                <button type="submit" class="btn-avance-estado btn-avance--progreso">
-                  <span class="material-symbols-outlined">play_arrow</span>
-                  Marcar como En proceso
-                </button>
-              </form>
-            </div>
-            {% elif ticket['estado'] == 'en_proceso' %}
-            <div class="gestion-seccion">
-              <span class="gestion-seccion-label">Estado actual</span>
-              <span class="badge-estado badge-estado--en-proceso" style="margin-bottom: 12px; display: inline-block;">En proceso</span>
-              <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
-                <input type="hidden" name="estado" value="resuelto">
-                <input type="hidden" name="comentario_admin" value="{{ ticket['comentario_admin'] or '' }}">
-                <button type="submit" class="btn-avance-estado btn-avance--resuelto">
-                  <span class="material-symbols-outlined">check_circle</span>
-                  Marcar como Resuelto
-                </button>
-              </form>
-              <div class="gestion-nota">
-                <span class="material-symbols-outlined">info</span>
-                <span>Al marcar como <strong>Resuelto</strong> se registrara tu usuario y la fecha/hora actual.</span>
+            <!-- Cambio de estado: solo administrador general -->
+            {% if puede_cambiar_estado %}
+              {% if ticket['estado'] == 'pendiente' %}
+              <div class="gestion-seccion">
+                <span class="gestion-seccion-label">Estado actual</span>
+                <span class="badge-estado badge-estado--pendiente" style="margin-bottom: 12px; display: inline-block;">Pendiente</span>
+                <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
+                  <input type="hidden" name="accion" value="cambiar_estado">
+                  <input type="hidden" name="estado" value="en_proceso">
+                  <button type="submit" class="btn-avance-estado btn-avance--progreso">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    Marcar como En proceso
+                  </button>
+                </form>
               </div>
-            </div>
+              {% elif ticket['estado'] == 'en_proceso' %}
+              <div class="gestion-seccion">
+                <span class="gestion-seccion-label">Estado actual</span>
+                <span class="badge-estado badge-estado--en-proceso" style="margin-bottom: 12px; display: inline-block;">En proceso</span>
+                <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
+                  <input type="hidden" name="accion" value="cambiar_estado">
+                  <input type="hidden" name="estado" value="resuelto">
+                  <button type="submit" class="btn-avance-estado btn-avance--resuelto">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Marcar como Resuelto
+                  </button>
+                </form>
+                <div class="gestion-nota">
+                  <span class="material-symbols-outlined">info</span>
+                  <span>Al marcar como <strong>Resuelto</strong> se registrara tu usuario y la fecha/hora actual.</span>
+                </div>
+              </div>
+              {% else %}
+              <div class="gestion-seccion">
+                <span class="gestion-seccion-label">Estado actual</span>
+                <span class="badge-estado badge-estado--resuelto" style="display: inline-block;">Resuelto</span>
+              </div>
+              {% endif %}
             {% else %}
-            <div class="gestion-seccion">
-              <span class="gestion-seccion-label">Estado actual</span>
-              <span class="badge-estado badge-estado--resuelto" style="display: inline-block;">Resuelto</span>
-            </div>
+              <div class="gestion-seccion">
+                <span class="gestion-seccion-label">Estado actual</span>
+                <span class="badge-estado badge-estado--{{ ticket['estado'] | replace('_', '-') }}" style="display: inline-block;">
+                  {{ ticket['estado'] | replace('_', ' ') | capitalize }}
+                </span>
+                <div class="gestion-nota">
+                  <span class="material-symbols-outlined">lock</span>
+                  <span>El cambio de estado lo gestiona el administrador general.</span>
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Confirmacion del supervisor (visto bueno de la finalizacion) -->
+            {% if ticket['estado'] == 'resuelto' %}
+              {% if ticket['confirmado_por'] %}
+              <div class="gestion-seccion">
+                <div class="gestion-confirmado-ok">
+                  <span class="material-symbols-outlined">verified</span>
+                  <span>Finalizacion confirmada por <strong>{{ ticket['confirmado_por'] }}</strong>.</span>
+                </div>
+              </div>
+              {% elif puede_confirmar %}
+              <div class="gestion-seccion">
+                <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
+                  <input type="hidden" name="accion" value="confirmar">
+                  <button type="submit" class="btn-avance-estado btn-avance--confirmar">
+                    <span class="material-symbols-outlined">verified</span>
+                    Confirmar finalizacion
+                  </button>
+                </form>
+                <div class="gestion-nota">
+                  <span class="material-symbols-outlined">info</span>
+                  <span>Da el <strong>visto bueno</strong> de que la atencion finalizo correctamente. Se registrara tu usuario y la fecha/hora.</span>
+                </div>
+              </div>
+              {% endif %}
             {% endif %}
 
             <!-- Separador -->
             <div class="gestion-divisor"></div>
 
-            <!-- Formulario de comentario (independiente del estado) -->
+            <!-- Historial de comentarios -->
+            <div class="gestion-seccion">
+              <span class="gestion-seccion-label">Historial de comentarios</span>
+              <div class="comentarios-historial">
+                {% if historial %}
+                  {% for c in historial %}
+                  <div class="comentario-item {% if c.rol == 'admin_tienda' %}comentario-item--tienda{% elif c.rol == 'admin_ti' %}comentario-item--general{% endif %}">
+                    <div class="comentario-meta">
+                      <span class="comentario-autor">
+                        <span class="material-symbols-outlined">account_circle</span>
+                        {{ c.autor }}
+                        {% if c.rol == 'admin_tienda' %}
+                          <span class="comentario-rol">Admin. Tienda</span>
+                        {% elif c.rol == 'admin_ti' %}
+                          <span class="comentario-rol comentario-rol--general">Admin. General</span>
+                        {% endif %}
+                      </span>
+                      {% if c.fecha %}<span class="comentario-fecha">{{ c.fecha }}</span>{% endif %}
+                    </div>
+                    <div class="comentario-texto">{{ c.texto }}</div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <p class="comentarios-vacio">Aun no hay comentarios en este ticket.</p>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Nuevo comentario -->
             <form action="{{ url_for('guardar_gestion_ticket', id_ticket=ticket['id']) }}" method="post">
-              <input type="hidden" name="estado" value="{{ ticket['estado'] }}">
-              <label for="comentario_admin">Comentario:</label>
-              <textarea id="comentario_admin" name="comentario_admin" rows="6" placeholder="Agrega un comentario sobre la gestion de este ticket...">{{ ticket['comentario_admin'] or '' }}</textarea>
-              <input type="submit" value="Guardar comentario">
+              <input type="hidden" name="accion" value="comentar">
+              <label for="comentario">Agregar comentario:</label>
+              <textarea id="comentario" name="comentario" rows="4" placeholder="Escribe un comentario..." required></textarea>
+              <input type="submit" value="Enviar comentario">
             </form>
 
           </div>

@@ -19,7 +19,7 @@ from sedeClass import Sede
 from sedeAD import insertar_sede, listar_sedes, obtener_sede_x_id, actualizar_sede, eliminar_sede
 
 from ticketClass import Ticket
-from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, listar_tickets_filtrado, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, gestionar_ticket, contar_tickets_por_estado
+from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, listar_tickets_filtrado, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, cambiar_estado_ticket, agregar_comentario_ticket, confirmar_ticket, parsear_historial_comentarios, contar_tickets_por_estado
 
 from solicitudClienteClass import SolicitudCliente
 from solicitudClienteAD import (insertar_solicitud_cliente, listar_solicitudes_cliente,
@@ -392,18 +392,45 @@ def gestionar_ticket_view(id_ticket):
     ticket = obtener_ticket_detalle(id_ticket)
     if not ticket:
         return render_template('error400.html', mensaje='Ticket no encontrado.', url_volver='/listar-tickets'), 400
-    return render_template('detalle_ticket.html', ticket=ticket)
+    historial = parsear_historial_comentarios(ticket.get('comentario_admin'))
+    rol = session.get('usuario_rol')
+    puede_cambiar_estado = rol != 'admin_tienda'
+    puede_confirmar = rol == 'supervisor'
+    return render_template('detalle_ticket.html', ticket=ticket,
+        historial=historial, puede_cambiar_estado=puede_cambiar_estado,
+        puede_confirmar=puede_confirmar)
 
 
 @app.route('/gestionar-ticket/<int:id_ticket>', methods=['POST'])
 def guardar_gestion_ticket(id_ticket):
     try:
-        estado     = request.form.get('estado')
-        comentario = request.form.get('comentario_admin', '').strip()
-        res = gestionar_ticket(id_ticket, estado, comentario, session.get('usuario_id'))
+        accion = request.form.get('accion', 'comentar')
+        url_volver = url_for('gestionar_ticket_view', id_ticket=id_ticket)
+
+        if accion == 'cambiar_estado':
+            # Solo el administrador general (admin_ti) puede cambiar el estado.
+            if session.get('usuario_rol') == 'admin_tienda':
+                return render_template('error400.html',
+                    mensaje='No tienes permisos para cambiar el estado del ticket.',
+                    url_volver=url_volver), 400
+            estado = request.form.get('estado')
+            res = cambiar_estado_ticket(id_ticket, estado, session.get('usuario_id'))
+        elif accion == 'confirmar':
+            # Solo el supervisor puede dar el visto bueno de la finalizacion.
+            if session.get('usuario_rol') != 'supervisor':
+                return render_template('error400.html',
+                    mensaje='Solo un supervisor puede confirmar la finalizacion del ticket.',
+                    url_volver=url_volver), 400
+            res = confirmar_ticket(id_ticket, session.get('usuario_id'))
+        else:
+            comentario = request.form.get('comentario', '').strip()
+            res = agregar_comentario_ticket(
+                id_ticket, comentario,
+                session.get('usuario_nombre'), session.get('usuario_rol'))
+
         if res == True:
-            return redirect('/listar-tickets')
-        return render_template('error400.html', mensaje=res, url_volver='/listar-tickets'), 400
+            return redirect(url_volver)
+        return render_template('error400.html', mensaje=res, url_volver=url_volver), 400
     except:
         return render_template('error500.html'), 500
 

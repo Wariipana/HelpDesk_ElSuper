@@ -986,6 +986,67 @@ tbody tr:hover td {
   box-shadow: 0 2px 6px rgba(22, 163, 74, .3);
 }
 
+.btn-avance--confirmar {
+  background-color: #0d9488;
+  color: #fff;
+}
+
+.btn-avance--confirmar:hover {
+  background-color: #0f766e;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, .3);
+}
+
+/* Aviso "ya confirmado" en el panel de gestion */
+.gestion-confirmado-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ccfbf1;
+  border-left: 3px solid #0d9488;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  color: #115e59;
+  line-height: 1.4;
+}
+
+.gestion-confirmado-ok .material-symbols-outlined {
+  font-size: 1.15rem;
+  color: #0d9488;
+  flex-shrink: 0;
+}
+
+/* Sello de confirmacion en el bloque de fechas/responsables */
+.detalle-confirmado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background-color: #ccfbf1;
+  border: 1px solid #99f6e4;
+  border-radius: 6px;
+}
+
+.detalle-confirmado .material-symbols-outlined {
+  font-size: 1.6rem;
+  color: #0d9488;
+  flex-shrink: 0;
+}
+
+.detalle-confirmado-titulo {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #115e59;
+}
+
+.detalle-confirmado-detalle {
+  display: block;
+  font-size: 0.78rem;
+  color: #0f766e;
+}
+
 .gestion-divisor {
   border-top: 1px solid var(--borde);
   margin: 16px 0;
@@ -1042,6 +1103,91 @@ tbody tr:hover td {
   flex-shrink: 0;
   margin-top: 1px;
   color: #f59e0b;
+}
+
+/* ── Historial de comentarios ── */
+.comentarios-historial {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 340px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  padding-right: 2px;
+}
+
+.comentario-item {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-left: 3px solid var(--texto-muted);
+  border-radius: 6px;
+  padding: 9px 11px;
+}
+
+.comentario-item--tienda {
+  border-left-color: #2563eb;
+}
+
+.comentario-item--general {
+  border-left-color: var(--rojo);
+}
+
+.comentario-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+
+.comentario-autor {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.comentario-autor .material-symbols-outlined {
+  font-size: 1.05rem;
+  color: var(--texto-muted);
+}
+
+.comentario-rol {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background-color: #dbeafe;
+  color: #1e40af;
+  letter-spacing: 0.2px;
+}
+
+.comentario-rol--general {
+  background-color: var(--rojo-claro);
+  color: var(--rojo);
+}
+
+.comentario-fecha {
+  font-size: 0.72rem;
+  color: var(--texto-muted);
+}
+
+.comentario-texto {
+  font-size: 0.86rem;
+  color: var(--texto);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comentarios-vacio {
+  font-size: 0.82rem;
+  color: var(--texto-muted);
+  font-style: italic;
+  margin: 4px 0 16px;
 }
 
 /* ── Filtros ── */

@@ -30,6 +30,7 @@
       <select id="rol" name="rol" data-validar="requerido">
         <option value="admin_ti" {% if usuario['rol'] == 'admin_ti' %}selected{% endif %}>Admin TI</option>
         <option value="admin_tienda" {% if usuario['rol'] == 'admin_tienda' %}selected{% endif %}>Admin Tienda</option>
+        <option value="supervisor" {% if usuario['rol'] == 'supervisor' %}selected{% endif %}>Supervisor</option>
       </select><br>
       <span class="campo-error"></span>
 
@@ -80,7 +81,7 @@
       var sedeLabel  = document.querySelector('label[for="sede_id"]');
 
       function actualizarSede() {
-        if (rolSelect.value === 'admin_ti') {
+        if (rolSelect.value === 'admin_ti' || rolSelect.value === 'supervisor') {
           sedeSelect.removeAttribute('data-validar');
           sedeSelect.classList.remove('campo-invalido', 'campo-valido');
           sedeLabel.textContent = 'Sede (opcional):';
