@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solicitud Invalida - ElSuper HelpDesk</title>
+  <title>Solicitud Inválida - ElSuper HelpDesk</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,8 +13,8 @@
     <div class="error-wrap">
       <div class="error-card">
         <div class="error-icon"><span class="material-symbols-outlined">warning</span></div>
-        <h1>Solicitud Invalida</h1>
-        <p>{{ mensaje if mensaje else 'Los datos enviados no son validos. Por favor revisa el formulario e intenta de nuevo.' }}</p>
+        <h1>Solicitud Inválida</h1>
+        <p>{{ mensaje if mensaje else 'Los datos enviados no son válidos. Por favor revisa el formulario e intenta de nuevo.' }}</p>
         <a href="{{ url_volver if url_volver else 'javascript:history.back()' }}" class="btn-accion">Volver</a>
         <span class="error-code">Error 400: Bad Request</span>
       </div>

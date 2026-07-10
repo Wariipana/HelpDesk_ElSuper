@@ -7,44 +7,90 @@ function validarCampo(campo) {
         if (valor === '') {
             mensaje = 'Este campo es obligatorio.';
         }
+    } else if (tipo === 'nombre') {
+        if (valor === '') {
+            mensaje = 'Este campo es obligatorio.';
+        } else if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ][A-Za-zÁÉÍÓÚÜÑáéíóúüñ '\.\-]*$/.test(valor)) {
+            mensaje = 'Solo debe contener letras y espacios.';
+        }
+    } else if (tipo === 'username') {
+        if (valor === '') {
+            mensaje = 'Este campo es obligatorio.';
+        } else if (valor.length < 3) {
+            mensaje = 'Debe tener al menos 3 caracteres.';
+        } else if (!/^[A-Za-z0-9_.\-]+$/.test(valor)) {
+            mensaje = 'Solo puede contener letras, números, puntos, guiones y guion bajo.';
+        }
+    } else if (tipo === 'password') {
+        if (valor === '') {
+            mensaje = 'Este campo es obligatorio.';
+        } else if (valor.length < 6) {
+            mensaje = 'Debe tener al menos 6 caracteres.';
+        }
+    } else if (tipo === 'email') {
+        if (valor === '') {
+            mensaje = 'Este campo es obligatorio.';
+        } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(valor)) {
+            mensaje = 'Ingresa un correo electrónico válido.';
+        }
     } else if (tipo === 'telefono') {
         if (!/^\d{9}$/.test(valor)) {
-            mensaje = 'Debe tener exactamente 9 digitos numericos.';
+            mensaje = 'Debe tener exactamente 9 dígitos numéricos.';
         }
     } else if (tipo === 'dni') {
         if (!/^\d{8}$/.test(valor)) {
-            mensaje = 'El DNI debe tener exactamente 8 digitos numericos.';
+            mensaje = 'El DNI debe tener exactamente 8 dígitos numéricos.';
         }
     } else if (tipo === 'documento') {
         var form = campo.closest('form');
         var tipoDoc = form.querySelector('[name="tipo_documento"]');
-        if (tipoDoc && tipoDoc.value === 'dni') {
+        var tipoDocValor = tipoDoc ? tipoDoc.value : '';
+        if (tipoDocValor === 'dni') {
             if (!/^\d{8}$/.test(valor)) {
-                mensaje = 'El DNI debe tener exactamente 8 digitos numericos.';
+                mensaje = 'El DNI debe tener exactamente 8 dígitos numéricos.';
+            }
+        } else if (tipoDocValor === 'ruc') {
+            if (!/^\d{11}$/.test(valor)) {
+                mensaje = 'El RUC debe tener exactamente 11 dígitos numéricos.';
             }
         } else {
             if (valor === '') {
                 mensaje = 'Este campo es obligatorio.';
+            } else if (!/^[A-Za-z0-9\-]{5,20}$/.test(valor)) {
+                mensaje = 'Debe tener entre 5 y 20 caracteres alfanuméricos.';
             }
         }
     } else if (tipo === 'entero-positivo') {
+        var maximo = campo.getAttribute('data-max');
         if (!/^\d+$/.test(valor) || parseInt(valor) < 1) {
-            mensaje = 'Debe ser un numero entero mayor a 0.';
+            mensaje = 'Debe ser un número entero mayor a 0.';
+        } else if (maximo && parseInt(valor) > parseInt(maximo)) {
+            mensaje = 'Debe ser menor o igual a ' + maximo + '.';
         }
     } else if (tipo === 'numero-positivo') {
         if (!/^\d+$/.test(valor) || parseInt(valor) < 1) {
-            mensaje = 'Debe ser un numero valido mayor a 0.';
+            mensaje = 'Debe ser un número válido mayor a 0.';
         }
     } else if (tipo === 'fecha') {
         if (valor === '') {
             mensaje = 'La fecha es obligatoria.';
+        } else if (!/^\d{4}-\d{2}-\d{2}$/.test(valor) || isNaN(new Date(valor + 'T00:00:00').getTime())) {
+            mensaje = 'La fecha no es válida.';
+        } else if (parseInt(valor.substring(0, 4), 10) < 1900 || parseInt(valor.substring(0, 4), 10) > 2100) {
+            mensaje = 'El año debe estar entre 1900 y 2100.';
         }
     } else if (tipo === 'fecha-fin') {
         if (valor !== '') {
-            var form = campo.closest('form');
-            var inicio = form.querySelector('[name="fecha_inicio"]');
-            if (inicio && inicio.value !== '' && valor < inicio.value) {
-                mensaje = 'La fecha de fin no puede ser anterior a la de inicio.';
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(valor) || isNaN(new Date(valor + 'T00:00:00').getTime())) {
+                mensaje = 'La fecha no es válida.';
+            } else if (parseInt(valor.substring(0, 4), 10) < 1900 || parseInt(valor.substring(0, 4), 10) > 2100) {
+                mensaje = 'El año debe estar entre 1900 y 2100.';
+            } else {
+                var form = campo.closest('form');
+                var inicio = form.querySelector('[name="fecha_inicio"]');
+                if (inicio && inicio.value !== '' && valor < inicio.value) {
+                    mensaje = 'La fecha de fin no puede ser anterior a la de inicio.';
+                }
             }
         }
     }
@@ -159,7 +205,7 @@ function configurarFormulario(idForm, mensajeGuardar) {
         if (errores.length > 0) {
             mostrarModal(errores);
         } else {
-            mostrarModalGuardar(mensajeGuardar || '¿Esta seguro que desea guardar?', form);
+            mostrarModalGuardar(mensajeGuardar || '¿Está seguro que desea guardar?', form);
         }
     });
 }

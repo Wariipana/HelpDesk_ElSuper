@@ -1,8 +1,10 @@
-import csv
 import io
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from flask import Response
+
+TZ_PERU = ZoneInfo('America/Lima')
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
@@ -10,6 +12,10 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle,
                                 Paragraph, Spacer)
+
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
 
 # Color institucional (coincide con --rojo del CSS)
 _ROJO = colors.HexColor('#8B0000')
@@ -26,28 +32,63 @@ def _valor_celda(valor):
 
 
 def _nombre_archivo(nombre_base, extension):
-    marca = datetime.now().strftime('%Y%m%d_%H%M')
+    marca = datetime.now(TZ_PERU).strftime('%Y%m%d_%H%M')
     return "reporte_" + nombre_base + "_" + marca + "." + extension
 
 
-def generar_csv(nombre_base, columnas, filas):
-    buffer = io.StringIO()
-    escritor = csv.writer(buffer)
+def _valor_celda_xlsx(valor):
+    # A diferencia de CSV/PDF, preservamos el tipo nativo cuando tiene sentido
+    # (fechas y numeros) para que Excel los reconozca como tal (ordenar, sumar, etc.)
+    if valor is None:
+        return None
+    if isinstance(valor, datetime):
+        return valor.replace(tzinfo=None)
+    if isinstance(valor, (int, float)):
+        return valor
+    return str(valor)
 
-    encabezados = [col['titulo'] for col in columnas]
-    escritor.writerow(encabezados)
 
-    for fila in filas:
-        escritor.writerow([_valor_celda(fila.get(col['clave'])) for col in columnas])
+def generar_xlsx(nombre_base, columnas, filas):
+    libro = Workbook()
+    hoja = libro.active
+    hoja.title = nombre_base[:31] or 'Reporte'
 
-    # BOM para que Excel reconozca los acentos correctamente
-    contenido = '﻿' + buffer.getvalue()
+    relleno_header = PatternFill(start_color='8B0000', end_color='8B0000', fill_type='solid')
+    fuente_header = Font(color='FFFFFF', bold=True)
+    alineacion_header = Alignment(vertical='center')
+
+    for i, col in enumerate(columnas, start=1):
+        celda = hoja.cell(row=1, column=i, value=col['titulo'])
+        celda.fill = relleno_header
+        celda.font = fuente_header
+        celda.alignment = alineacion_header
+
+    for fila_idx, fila in enumerate(filas, start=2):
+        for col_idx, col in enumerate(columnas, start=1):
+            valor = _valor_celda_xlsx(fila.get(col['clave']))
+            celda = hoja.cell(row=fila_idx, column=col_idx, value=valor)
+            if isinstance(valor, datetime):
+                celda.number_format = 'DD/MM/YYYY HH:MM'
+
+    # Ancho de columna aproximado segun el peso relativo (mismo criterio que el PDF)
+    pesos = [col.get('peso', 1) for col in columnas]
+    total_peso = sum(pesos) or 1
+    for i, peso in enumerate(pesos, start=1):
+        hoja.column_dimensions[get_column_letter(i)].width = max(10, round(peso / total_peso * 90))
+
+    hoja.freeze_panes = 'A2'
+    hoja.auto_filter.ref = hoja.dimensions
+
+    buffer = io.BytesIO()
+    libro.save(buffer)
+    contenido = buffer.getvalue()
+    buffer.close()
 
     return Response(
         contenido,
-        mimetype='text/csv; charset=utf-8',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         headers={
-            'Content-Disposition': 'attachment; filename=' + _nombre_archivo(nombre_base, 'csv')
+            'Content-Disposition': 'attachment; filename=' + _nombre_archivo(nombre_base, 'xlsx')
         }
     )
 
@@ -80,7 +121,7 @@ def generar_pdf(nombre_base, titulo, columnas, filas):
 
     elementos = []
     elementos.append(Paragraph(titulo, estilo_titulo))
-    generado = datetime.now().strftime('%d/%m/%Y %H:%M')
+    generado = datetime.now(TZ_PERU).strftime('%d/%m/%Y %H:%M')
     elementos.append(Paragraph(
         "ElSuper HelpDesk &nbsp;·&nbsp; Generado el " + generado
         + " &nbsp;·&nbsp; " + str(len(filas)) + " registro(s)",
@@ -136,4 +177,4 @@ def generar_pdf(nombre_base, titulo, columnas, filas):
 def generar_reporte(formato, nombre_base, titulo, columnas, filas):
     if formato == 'pdf':
         return generar_pdf(nombre_base, titulo, columnas, filas)
-    return generar_csv(nombre_base, columnas, filas)
+    return generar_xlsx(nombre_base, columnas, filas)

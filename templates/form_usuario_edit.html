@@ -15,15 +15,15 @@
       <input type="hidden" name="id" value="{{ usuario['id'] }}">
 
       <label for="nombre_completo">Nombre completo:</label><br>
-      <input type="text" id="nombre_completo" name="nombre_completo" value="{{ usuario['nombre_completo'] }}" data-validar="requerido"><br>
+      <input type="text" id="nombre_completo" name="nombre_completo" value="{{ usuario['nombre_completo'] }}" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="username">Username:</label><br>
-      <input type="text" id="username" name="username" value="{{ usuario['username'] }}" data-validar="requerido"><br>
+      <input type="text" id="username" name="username" value="{{ usuario['username'] }}" data-validar="username"><br>
       <span class="campo-error"></span>
 
-      <label for="password">Contrasena:</label><br>
-      <input type="password" id="password" name="password" value="{{ usuario['password'] }}" data-validar="requerido"><br>
+      <label for="password">Contraseña:</label><br>
+      <input type="password" id="password" name="password" value="{{ usuario['password'] }}" data-validar="password"><br>
       <span class="campo-error"></span>
 
       <label for="rol">Rol:</label><br>
@@ -97,7 +97,7 @@
       actualizarSede();
     }());
 
-    configurarFormulario('form-usuario-edit', '¿Esta seguro que desea guardar los cambios del usuario?');
+    configurarFormulario('form-usuario-edit', '¿Está seguro que desea guardar los cambios del usuario?');
   </script>
 </body>
 </html>

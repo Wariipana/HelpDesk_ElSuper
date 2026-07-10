@@ -27,7 +27,7 @@
         <div class="detalle-card">
           <div class="detalle-card-header">
             <span class="material-symbols-outlined">confirmation_number</span>
-            Informacion del Ticket
+            Información del Ticket
           </div>
           <div class="detalle-card-body">
 
@@ -37,13 +37,13 @@
             </div>
 
             <div class="detalle-campo">
-              <span class="detalle-label">Descripcion</span>
+              <span class="detalle-label">Descripción</span>
               <span class="detalle-valor detalle-valor--descripcion">{{ ticket['descripcion'] }}</span>
             </div>
 
             <div class="detalle-fila-doble">
               <div class="detalle-campo">
-                <span class="detalle-label">Categoria</span>
+                <span class="detalle-label">Categoría</span>
                 <span class="detalle-valor">{{ ticket['categoria'] | capitalize }}</span>
               </div>
               <div class="detalle-campo">
@@ -105,7 +105,7 @@
                 <span class="detalle-valor">{{ ticket['nombre_contacto'] }}</span>
               </div>
               <div class="detalle-campo">
-                <span class="detalle-label">Telefono</span>
+                <span class="detalle-label">Teléfono</span>
                 <span class="detalle-valor">{{ ticket['telefono_contacto'] }}</span>
               </div>
             </div>
@@ -130,11 +130,11 @@
             </div>
             <div class="detalle-fila-doble">
               <div class="detalle-campo">
-                <span class="detalle-label">Fecha limite</span>
+                <span class="detalle-label">Fecha límite</span>
                 <span class="detalle-valor">{{ ticket['fecha_limite'].strftime('%d/%m/%Y') if ticket['fecha_limite'] else '—' }}</span>
               </div>
               <div class="detalle-campo">
-                <span class="detalle-label">Ultima actualizacion</span>
+                <span class="detalle-label">Última actualización</span>
                 <span class="detalle-valor">{{ ticket['updated_at'].strftime('%d/%m/%Y %H:%M') if ticket['updated_at'] else '—' }}</span>
               </div>
             </div>
@@ -204,19 +204,19 @@
                 </form>
                 <div class="gestion-nota">
                   <span class="material-symbols-outlined">info</span>
-                  <span>Al marcar como <strong>Resuelto</strong> se registrara tu usuario y la fecha/hora actual.</span>
+                  <span>Al marcar como <strong>Resuelto</strong> se registrará tu usuario y la fecha/hora actual.</span>
                 </div>
               </div>
               {% else %}
               <div class="gestion-seccion">
                 <span class="gestion-seccion-label">Estado actual</span>
-                <span class="badge-estado badge-estado--resuelto" style="display: inline-block;">Resuelto</span>
+                <span class="badge-estado badge-estado--resuelto" style="margin-bottom: 12px; display: inline-block;">Resuelto</span>
               </div>
               {% endif %}
             {% else %}
               <div class="gestion-seccion">
                 <span class="gestion-seccion-label">Estado actual</span>
-                <span class="badge-estado badge-estado--{{ ticket['estado'] | replace('_', '-') }}" style="display: inline-block;">
+                <span class="badge-estado badge-estado--{{ ticket['estado'] | replace('_', '-') }}" style="margin-bottom: 12px; display: inline-block;">
                   {{ ticket['estado'] | replace('_', ' ') | capitalize }}
                 </span>
                 <div class="gestion-nota">
@@ -232,7 +232,7 @@
               <div class="gestion-seccion">
                 <div class="gestion-confirmado-ok">
                   <span class="material-symbols-outlined">verified</span>
-                  <span>Finalizacion confirmada por <strong>{{ ticket['confirmado_por'] }}</strong>.</span>
+                  <span>Finalización confirmada por <strong>{{ ticket['confirmado_por'] }}</strong>.</span>
                 </div>
               </div>
               {% elif puede_confirmar %}
@@ -241,12 +241,12 @@
                   <input type="hidden" name="accion" value="confirmar">
                   <button type="submit" class="btn-avance-estado btn-avance--confirmar">
                     <span class="material-symbols-outlined">verified</span>
-                    Confirmar finalizacion
+                    Confirmar finalización
                   </button>
                 </form>
                 <div class="gestion-nota">
                   <span class="material-symbols-outlined">info</span>
-                  <span>Da el <strong>visto bueno</strong> de que la atencion finalizo correctamente. Se registrara tu usuario y la fecha/hora.</span>
+                  <span>Da el <strong>visto bueno</strong> de que la atención finalizó correctamente. Se registrará tu usuario y la fecha/hora.</span>
                 </div>
               </div>
               {% endif %}
@@ -278,7 +278,7 @@
                   </div>
                   {% endfor %}
                 {% else %}
-                  <p class="comentarios-vacio">Aun no hay comentarios en este ticket.</p>
+                  <p class="comentarios-vacio">Aún no hay comentarios en este ticket.</p>
                 {% endif %}
               </div>
             </div>

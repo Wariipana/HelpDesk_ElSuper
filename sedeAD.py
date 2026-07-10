@@ -34,6 +34,19 @@ def listar_sedes():
         return None
 
 
+def contar_sedes():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT COUNT(*) AS `total` FROM `sedes`")
+                    return cursor.fetchone()['total']
+        return 0
+    except:
+        return 0
+
+
 def obtener_sede_x_id(p_id):
     try:
         connection = obtenerconexion()

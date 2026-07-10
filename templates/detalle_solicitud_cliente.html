@@ -46,13 +46,13 @@
                 <span class="detalle-valor">{{ solicitud['tipo_documento'] | upper }}</span>
               </div>
               <div class="detalle-campo">
-                <span class="detalle-label">Numero de documento</span>
+                <span class="detalle-label">Número de documento</span>
                 <span class="detalle-valor">{{ solicitud['numero_documento'] }}</span>
               </div>
             </div>
             <div class="detalle-fila-doble">
               <div class="detalle-campo">
-                <span class="detalle-label">Telefono</span>
+                <span class="detalle-label">Teléfono</span>
                 <span class="detalle-valor">{{ solicitud['telefono_cliente'] or '—' }}</span>
               </div>
               <div class="detalle-campo">
@@ -111,7 +111,7 @@
               </div>
             </div>
             <div class="detalle-campo">
-              <span class="detalle-label">Ultima actualizacion</span>
+              <span class="detalle-label">Última actualización</span>
               <span class="detalle-valor">{{ solicitud['updated_at'].strftime('%d/%m/%Y %H:%M') if solicitud['updated_at'] else '—' }}</span>
             </div>
             {% if solicitud['resuelto_por'] %}
@@ -148,12 +148,12 @@
                 <option value="rechazado"  {% if solicitud['estado'] == 'rechazado' %}selected{% endif %}>Rechazado</option>
               </select>
 
-              <label for="observacion_admin">Observacion:</label>
-              <textarea id="observacion_admin" name="observacion_admin" rows="6" placeholder="Agrega una observacion sobre esta solicitud...">{{ solicitud['observacion_admin'] or '' }}</textarea>
+              <label for="observacion_admin">Observación:</label>
+              <textarea id="observacion_admin" name="observacion_admin" rows="6" placeholder="Agrega una observación sobre esta solicitud...">{{ solicitud['observacion_admin'] or '' }}</textarea>
 
               <div class="gestion-nota">
                 <span class="material-symbols-outlined">info</span>
-                Al marcar como <strong>Aprobado</strong> o <strong>Rechazado</strong> se registrara tu usuario y la fecha/hora actual.
+                <span>Al marcar como <strong>Aprobado</strong> o <strong>Rechazado</strong> se registrará tu usuario y la fecha/hora actual.</span>
               </div>
 
               <input type="submit" value="Guardar cambios">

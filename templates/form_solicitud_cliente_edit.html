@@ -15,11 +15,11 @@
       <input type="hidden" name="id" value="{{ solicitud['id'] }}">
 
       <label for="nombre_cliente">Nombre del cliente:</label><br>
-      <input type="text" id="nombre_cliente" name="nombre_cliente" value="{{ solicitud['nombre_cliente'] }}" data-validar="requerido"><br>
+      <input type="text" id="nombre_cliente" name="nombre_cliente" value="{{ solicitud['nombre_cliente'] }}" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="apellido_cliente">Apellido del cliente:</label><br>
-      <input type="text" id="apellido_cliente" name="apellido_cliente" value="{{ solicitud['apellido_cliente'] }}" data-validar="requerido"><br>
+      <input type="text" id="apellido_cliente" name="apellido_cliente" value="{{ solicitud['apellido_cliente'] }}" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="tipo_documento">Tipo de documento:</label><br>
@@ -33,16 +33,16 @@
       </select><br>
       <span class="campo-error"></span>
 
-      <label for="numero_documento">Numero de documento:</label><br>
+      <label for="numero_documento">Número de documento:</label><br>
       <input type="text" id="numero_documento" name="numero_documento" value="{{ solicitud['numero_documento'] }}" data-validar="documento"><br>
       <span class="campo-error"></span>
 
-      <label for="telefono_cliente">Telefono del cliente:</label><br>
+      <label for="telefono_cliente">Teléfono del cliente:</label><br>
       <input type="text" id="telefono_cliente" name="telefono_cliente" value="{{ solicitud['telefono_cliente'] }}" data-validar="telefono"><br>
       <span class="campo-error"></span>
 
       <label for="email_cliente">Email del cliente:</label><br>
-      <input type="email" id="email_cliente" name="email_cliente" value="{{ solicitud['email_cliente'] }}" data-validar="requerido"><br>
+      <input type="email" id="email_cliente" name="email_cliente" value="{{ solicitud['email_cliente'] }}" data-validar="email"><br>
       <span class="campo-error"></span>
 
       <label for="tipo">Tipo de solicitud:</label><br>
@@ -56,6 +56,22 @@
       <textarea id="motivo" name="motivo" rows="4" data-validar="requerido">{{ solicitud['motivo'] }}</textarea><br>
       <span class="campo-error"></span>
 
+      {% if solicitud['estado'] and solicitud['estado'] != 'pendiente' %}
+      <div class="campo-sesion">
+        <span class="campo-sesion-label">Estado de la solicitud</span>
+        <span class="campo-sesion-valor">
+          <span class="badge-estado badge-estado--{{ solicitud['estado'] }}">{{ solicitud['estado'] | capitalize }}</span>
+        </span>
+      </div>
+      {% if solicitud['observacion_admin'] %}
+      <div class="campo-sesion">
+        <span class="campo-sesion-label">Observación del administrador</span>
+        <span class="campo-sesion-valor" style="white-space: pre-wrap;">{{ solicitud['observacion_admin'] }}</span>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if session.get('usuario_sede_id') %}
       <div class="campo-sesion">
         <span class="campo-sesion-label">Sede</span>
         <span class="campo-sesion-valor">
@@ -63,6 +79,16 @@
           {{ session.get('usuario_sede') or '—' }}
         </span>
       </div>
+      {% else %}
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">Selecciona una sede</option>
+        {% for s in sedes %}
+        <option value="{{ s.id }}" {% if solicitud['sede_id'] == s.id %}selected{% endif %}>{{ s.nombre }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
+      {% endif %}
 
       <div class="campo-sesion">
         <span class="campo-sesion-label">Registrado por</span>
@@ -96,6 +122,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
-  <script>configurarFormulario('form-solicitud-cliente-edit', '¿Esta seguro que desea guardar los cambios de la solicitud?');</script>
+  <script>configurarFormulario('form-solicitud-cliente-edit', '¿Está seguro que desea guardar los cambios de la solicitud?');</script>
 </body>
 </html>

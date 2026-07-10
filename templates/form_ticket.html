@@ -13,15 +13,15 @@
     <h1>Registrar Ticket</h1>
     <form id="form-ticket" action="/guardar-ticket" method="post">
 
-      <label for="titulo">Titulo:</label><br>
+      <label for="titulo">Título:</label><br>
       <input type="text" id="titulo" name="titulo" data-validar="requerido"><br>
       <span class="campo-error"></span>
 
-      <label for="descripcion">Descripcion:</label><br>
+      <label for="descripcion">Descripción:</label><br>
       <textarea id="descripcion" name="descripcion" rows="4" data-validar="requerido"></textarea><br>
       <span class="campo-error"></span>
 
-      <label for="categoria">Categoria:</label><br>
+      <label for="categoria">Categoría:</label><br>
       <select id="categoria" name="categoria" data-validar="requerido">
         <option value="hardware">Hardware</option>
         <option value="software">Software</option>
@@ -35,7 +35,7 @@
         <option value="baja">Baja</option>
         <option value="media" selected>Media</option>
         <option value="alta">Alta</option>
-        <option value="critica">Critica</option>
+        <option value="critica">Crítica</option>
       </select><br>
       <span class="campo-error"></span>
 
@@ -44,17 +44,18 @@
       <span class="campo-error"></span>
 
       <label for="cantidad_equipos">Cantidad de equipos:</label><br>
-      <input type="number" id="cantidad_equipos" name="cantidad_equipos" value="1" min="1" data-validar="entero-positivo"><br>
+      <input type="number" id="cantidad_equipos" name="cantidad_equipos" value="1" min="1" max="255" data-validar="entero-positivo" data-max="255"><br>
       <span class="campo-error"></span>
 
       <label for="nombre_contacto">Nombre de contacto:</label><br>
-      <input type="text" id="nombre_contacto" name="nombre_contacto" data-validar="requerido"><br>
+      <input type="text" id="nombre_contacto" name="nombre_contacto" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
-      <label for="telefono_contacto">Telefono de contacto:</label><br>
+      <label for="telefono_contacto">Teléfono de contacto:</label><br>
       <input type="text" id="telefono_contacto" name="telefono_contacto" data-validar="telefono"><br>
       <span class="campo-error"></span>
 
+      {% if session.get('usuario_sede_id') %}
       <div class="campo-sesion">
         <span class="campo-sesion-label">Sede</span>
         <span class="campo-sesion-valor">
@@ -62,6 +63,16 @@
           {{ session.get('usuario_sede') or '—' }}
         </span>
       </div>
+      {% else %}
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">Selecciona una sede</option>
+        {% for s in sedes %}
+        <option value="{{ s.id }}">{{ s.nombre }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
+      {% endif %}
 
       <div class="campo-sesion">
         <span class="campo-sesion-label">Registrado por</span>
@@ -95,6 +106,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
-  <script>configurarFormulario('form-ticket', '¿Esta seguro que desea registrar el ticket?');</script>
+  <script>configurarFormulario('form-ticket', '¿Está seguro que desea registrar el ticket?');</script>
 </body>
 </html>

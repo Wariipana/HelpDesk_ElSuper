@@ -1,4 +1,5 @@
 import pymysql
+from datetime import datetime
 from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
 from flask import render_template, Flask, request, redirect, session, url_for
 
@@ -13,31 +14,50 @@ from loginClass import Login
 from loginAD import verificar_login, listar_usuarios as listar_usuarios_login
 
 from usuarioClass import Usuario
-from usuarioAD import insertar_usuario, listar_usuarios, listar_usuarios_filtrado, obtener_usuario_x_id, actualizar_usuario, eliminar_usuario
+from usuarioAD import insertar_usuario, listar_usuarios, listar_usuarios_filtrado, obtener_usuario_x_id, actualizar_usuario, eliminar_usuario, contar_usuarios_activos
 
 from sedeClass import Sede
-from sedeAD import insertar_sede, listar_sedes, obtener_sede_x_id, actualizar_sede, eliminar_sede
+from sedeAD import insertar_sede, listar_sedes, obtener_sede_x_id, actualizar_sede, eliminar_sede, contar_sedes
 
 from ticketClass import Ticket
-from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, listar_tickets_filtrado, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, cambiar_estado_ticket, agregar_comentario_ticket, confirmar_ticket, parsear_historial_comentarios, contar_tickets_por_estado
+from ticketAD import insertar_ticket, listar_tickets, listar_tickets_x_sede, listar_tickets_filtrado, obtener_ticket_x_id, actualizar_ticket, eliminar_ticket, obtener_ticket_detalle, cambiar_estado_ticket, agregar_comentario_ticket, confirmar_ticket, parsear_historial_comentarios, contar_tickets_por_estado, listar_tickets_recientes
 
 from solicitudClienteClass import SolicitudCliente
 from solicitudClienteAD import (insertar_solicitud_cliente, listar_solicitudes_cliente,
     listar_solicitudes_x_sede, listar_solicitudes_filtrado, obtener_solicitud_cliente_x_id, obtener_solicitud_detalle,
-    actualizar_solicitud_cliente, eliminar_solicitud_cliente, gestionar_solicitud)
+    actualizar_solicitud_cliente, eliminar_solicitud_cliente, gestionar_solicitud, contar_solicitudes_por_estado)
 
 from movimientoEquipoClass import MovimientoEquipo
-from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo, listar_movimientos_filtrado, obtener_movimiento_equipo_x_id, actualizar_movimiento_equipo, eliminar_movimiento_equipo
+from movimientoEquipoAD import insertar_movimiento_equipo, listar_movimientos_equipo, listar_movimientos_filtrado, obtener_movimiento_equipo_x_id, actualizar_movimiento_equipo, eliminar_movimiento_equipo, contar_movimientos_recientes
 
 from trabajadorClass import Trabajador
 from trabajadorAD import (insertar_trabajador, listar_trabajadores,
     listar_trabajadores_x_sede, listar_trabajadores_filtrado, obtener_trabajador_x_id,
-    actualizar_trabajador, eliminar_trabajador)
+    actualizar_trabajador, eliminar_trabajador, contar_trabajadores_resumen)
+
+from validaciones import (ValidationError, validar_id, validar_ticket, validar_solicitud_cliente,
+    validar_movimiento_equipo, validar_trabajador, validar_usuario, validar_sede,
+    validar_estado_ticket, validar_gestion_solicitud, validar_comentario_ticket)
 
 app = Flask(__name__)
 app.secret_key = 'elsuper_helpdesk_secret_2024'
 app.config['JWT_SECRET_KEY'] = 'elsuper_helpdesk_jwt_2024'
 registrar_apis(app)
+
+
+def _fecha_filtro(valor):
+    """Valida un valor de filtro fecha_desde/fecha_hasta (AAAA-MM-DD, año 1900-2100).
+    Devuelve el string tal cual si es válido, o '' si no lo es (se ignora el filtro)."""
+    valor = (valor or '').strip()
+    if not valor:
+        return ''
+    try:
+        fecha = datetime.strptime(valor, '%Y-%m-%d')
+    except ValueError:
+        return ''
+    if fecha.year < 1900 or fecha.year > 2100:
+        return ''
+    return valor
 
 # Cuando lo ocasiona el usuario
 @app.errorhandler(400)
@@ -55,7 +75,7 @@ def chatbot():
     if pregunta:
         conversacion = session.setdefault('chatbot_conversacion', [])
         conversacion.append({'tipo': 'usuario', 'texto': pregunta})
-        conversacion.append({'tipo': 'bot', 'texto': chatbot_respuesta(pregunta)})
+        conversacion.append({'tipo': 'bot', 'texto': chatbot_respuesta(pregunta, session.get('usuario_rol'))})
         session.modified = True
 
     referrer = request.referrer or url_for('dashboard')
@@ -105,11 +125,11 @@ def hacer_login():
                 session['usuario_sede']    = res['sede']
                 return redirect('/dashboard')
             elif res == False:
-                return render_template('form_login.html', error='Problemas con la conexion. Intenta de nuevo.')
+                return render_template('form_login.html', error='Problemas con la conexión. Intenta de nuevo.')
             else:
-                return render_template('form_login.html', error='Usuario o contrasena incorrectos.')
+                return render_template('form_login.html', error='Usuario o contraseña incorrectos.')
         except:
-            return render_template('form_login.html', error='Ocurrio un error inesperado. Intenta de nuevo.')
+            return render_template('form_login.html', error='Ocurrió un error inesperado. Intenta de nuevo.')
     else:
 
         return redirect('/login')
@@ -119,8 +139,26 @@ def hacer_login():
 def dashboard():
     rol = session.get('usuario_rol')
     sede_id_fijo = session.get('usuario_sede_id') if rol == 'admin_tienda' else None
+
     conteo_tickets = contar_tickets_por_estado(sede_id_fijo=sede_id_fijo or None)
-    return render_template('dashboard.html', conteo_tickets=conteo_tickets)
+    conteo_solicitudes = contar_solicitudes_por_estado(sede_id_fijo=sede_id_fijo or None)
+    resumen_trabajadores = contar_trabajadores_resumen(sede_id_fijo=sede_id_fijo or None)
+    tickets_recientes = listar_tickets_recientes(sede_id_fijo=sede_id_fijo or None, limite=5)
+
+    resumen_sistema = None
+    if rol in ('admin_ti', 'supervisor'):
+        resumen_sistema = {
+            'sedes': contar_sedes(),
+            'usuarios_activos': contar_usuarios_activos(),
+            'movimientos': contar_movimientos_recientes(dias=30),
+        }
+
+    return render_template('dashboard.html',
+        conteo_tickets=conteo_tickets,
+        conteo_solicitudes=conteo_solicitudes,
+        resumen_trabajadores=resumen_trabajadores,
+        tickets_recientes=tickets_recientes,
+        resumen_sistema=resumen_sistema)
 
 
 @app.route('/logout')
@@ -140,10 +178,15 @@ def guardar_sede():
     if request.method == 'POST':
 
         try:
+            datos = validar_sede(request.form)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
+        try:
 
             objSede = Sede(
-                request.form.get('nombre'),
-                request.form.get('direccion')
+                datos['nombre'],
+                datos['direccion']
             )
 
             res = insertar_sede(objSede)
@@ -151,7 +194,7 @@ def guardar_sede():
             if res == True:
                 return render_template('exito_sede.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la insercion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la inserción.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -181,11 +224,17 @@ def actualizar_sede_view():
     if request.method == 'POST':
 
         try:
+            datos = validar_sede(request.form)
+            id_sede = validar_id(request.form.get('id'), 'ID de sede')
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
+        try:
 
             objSede = Sede(
-                request.form.get('nombre'),
-                request.form.get('direccion'),
-                request.form.get('id')
+                datos['nombre'],
+                datos['direccion'],
+                id_sede
             )
 
             res = actualizar_sede(objSede)
@@ -193,7 +242,7 @@ def actualizar_sede_view():
             if res == True:
                 return render_template('exito_sede.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la actualizacion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la actualización.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -218,7 +267,8 @@ def eliminar_sede_view(id_sede):
 
 @app.route('/ticket')
 def form_ticket():
-    return render_template('form_ticket.html')
+    sedes = listar_sedes() if not session.get('usuario_sede_id') else None
+    return render_template('form_ticket.html', sedes=sedes)
 
 
 @app.route('/guardar-ticket', methods=['POST'])
@@ -226,18 +276,28 @@ def guardar_ticket():
 
     if request.method == 'POST':
 
+        sede_fija = session.get('usuario_sede_id')
+        sedes_validas = None
+        if not sede_fija:
+            sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+
+        try:
+            datos = validar_ticket(request.form, sede_fija=sede_fija, sedes_validas=sedes_validas)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores), url_volver='/ticket'), 400
+
         try:
 
             objTicket = Ticket(
-                request.form.get('titulo'),
-                request.form.get('descripcion'),
-                request.form.get('categoria'),
-                request.form.get('prioridad'),
-                request.form.get('equipo_afectado'),
-                request.form.get('cantidad_equipos'),
-                request.form.get('nombre_contacto'),
-                request.form.get('telefono_contacto'),
-                session.get('usuario_sede_id'),
+                datos['titulo'],
+                datos['descripcion'],
+                datos['categoria'],
+                datos['prioridad'],
+                datos['equipo_afectado'],
+                datos['cantidad_equipos'],
+                datos['nombre_contacto'],
+                datos['telefono_contacto'],
+                datos['sede_id'],
                 session.get('usuario_id')
             )
 
@@ -246,7 +306,7 @@ def guardar_ticket():
             if res == True:
                 return render_template('exito_ticket.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la insercion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la inserción.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -263,8 +323,8 @@ def listar_tickets_view():
     rol = session.get('usuario_rol')
     sede_id_fijo = session.get('usuario_sede_id') if rol == 'admin_tienda' else None
 
-    fecha_desde  = request.args.get('fecha_desde', '').strip()
-    fecha_hasta  = request.args.get('fecha_hasta', '').strip()
+    fecha_desde  = _fecha_filtro(request.args.get('fecha_desde', ''))
+    fecha_hasta  = _fecha_filtro(request.args.get('fecha_hasta', ''))
     sede_id      = request.args.get('sede_id', '').strip()
     prioridad    = request.args.get('prioridad', '').strip()
     estado       = request.args.get('estado', '').strip()
@@ -305,8 +365,8 @@ def reporte_tickets():
 
     tickets, _ = listar_tickets_filtrado(
         sede_id_fijo = sede_id_fijo or None,
-        fecha_desde  = request.args.get('fecha_desde', '').strip() or None,
-        fecha_hasta  = request.args.get('fecha_hasta', '').strip() or None,
+        fecha_desde  = _fecha_filtro(request.args.get('fecha_desde', '')) or None,
+        fecha_hasta  = _fecha_filtro(request.args.get('fecha_hasta', '')) or None,
         sede_id      = request.args.get('sede_id', '').strip() or None,
         prioridad    = request.args.get('prioridad', '').strip() or None,
         estado       = request.args.get('estado', '').strip() or None,
@@ -328,14 +388,15 @@ def reporte_tickets():
         {'clave': 'created_at',      'titulo': 'Fecha',           'peso': 1.3},
     ]
 
-    formato = request.args.get('formato', 'csv').strip().lower()
+    formato = request.args.get('formato', 'xlsx').strip().lower()
     return generar_reporte(formato, 'tickets', 'Reporte de Tickets', columnas, tickets)
 
 
 @app.route('/cargar-formulario-editar-ticket/<int:id_ticket>')
 def cargar_formulario_editar_ticket(id_ticket):
     resultado = obtener_ticket_x_id(id_ticket)
-    return render_template('form_ticket_edit.html', ticket=resultado[0])
+    sedes = listar_sedes() if not session.get('usuario_sede_id') else None
+    return render_template('form_ticket_edit.html', ticket=resultado[0], sedes=sedes)
 
 
 @app.route('/actualizar-ticket', methods=['POST'])
@@ -343,20 +404,31 @@ def actualizar_ticket_view():
 
     if request.method == 'POST':
 
+        sede_fija = session.get('usuario_sede_id')
+        sedes_validas = None
+        if not sede_fija:
+            sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+
+        try:
+            datos = validar_ticket(request.form, sede_fija=sede_fija, sedes_validas=sedes_validas)
+            id_ticket = validar_id(request.form.get('id'), 'ID de ticket')
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
         try:
 
             objTicket = Ticket(
-                request.form.get('titulo'),
-                request.form.get('descripcion'),
-                request.form.get('categoria'),
-                request.form.get('prioridad'),
-                request.form.get('equipo_afectado'),
-                request.form.get('cantidad_equipos'),
-                request.form.get('nombre_contacto'),
-                request.form.get('telefono_contacto'),
-                session.get('usuario_sede_id'),
+                datos['titulo'],
+                datos['descripcion'],
+                datos['categoria'],
+                datos['prioridad'],
+                datos['equipo_afectado'],
+                datos['cantidad_equipos'],
+                datos['nombre_contacto'],
+                datos['telefono_contacto'],
+                datos['sede_id'],
                 session.get('usuario_id'),
-                request.form.get('id')
+                id_ticket
             )
 
             res = actualizar_ticket(objTicket)
@@ -364,7 +436,7 @@ def actualizar_ticket_view():
             if res == True:
                 return render_template('exito_ticket.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la actualizacion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la actualización.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -413,17 +485,23 @@ def guardar_gestion_ticket(id_ticket):
                 return render_template('error400.html',
                     mensaje='No tienes permisos para cambiar el estado del ticket.',
                     url_volver=url_volver), 400
-            estado = request.form.get('estado')
+            try:
+                estado = validar_estado_ticket(request.form.get('estado'))
+            except ValidationError as e:
+                return render_template('error400.html', mensaje='; '.join(e.errores), url_volver=url_volver), 400
             res = cambiar_estado_ticket(id_ticket, estado, session.get('usuario_id'))
         elif accion == 'confirmar':
             # Solo el supervisor puede dar el visto bueno de la finalizacion.
             if session.get('usuario_rol') != 'supervisor':
                 return render_template('error400.html',
-                    mensaje='Solo un supervisor puede confirmar la finalizacion del ticket.',
+                    mensaje='Solo un supervisor puede confirmar la finalización del ticket.',
                     url_volver=url_volver), 400
             res = confirmar_ticket(id_ticket, session.get('usuario_id'))
         else:
-            comentario = request.form.get('comentario', '').strip()
+            try:
+                comentario = validar_comentario_ticket(request.form.get('comentario'))
+            except ValidationError as e:
+                return render_template('error400.html', mensaje='; '.join(e.errores), url_volver=url_volver), 400
             res = agregar_comentario_ticket(
                 id_ticket, comentario,
                 session.get('usuario_nombre'), session.get('usuario_rol'))
@@ -437,7 +515,8 @@ def guardar_gestion_ticket(id_ticket):
 
 @app.route('/solicitud-cliente')
 def form_solicitud_cliente():
-    return render_template('form_solicitud_cliente.html')
+    sedes = listar_sedes() if not session.get('usuario_sede_id') else None
+    return render_template('form_solicitud_cliente.html', sedes=sedes)
 
 
 @app.route('/guardar-solicitud-cliente', methods=['POST'])
@@ -445,18 +524,28 @@ def guardar_solicitud_cliente():
 
     if request.method == 'POST':
 
+        sede_fija = session.get('usuario_sede_id')
+        sedes_validas = None
+        if not sede_fija:
+            sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+
+        try:
+            datos = validar_solicitud_cliente(request.form, sede_fija=sede_fija, sedes_validas=sedes_validas)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores), url_volver='/solicitud-cliente'), 400
+
         try:
 
             objSolicitud = SolicitudCliente(
-                request.form.get('nombre_cliente'),
-                request.form.get('apellido_cliente'),
-                request.form.get('tipo_documento'),
-                request.form.get('numero_documento'),
-                request.form.get('telefono_cliente'),
-                request.form.get('email_cliente'),
-                request.form.get('tipo'),
-                request.form.get('motivo'),
-                session.get('usuario_sede_id'),
+                datos['nombre_cliente'],
+                datos['apellido_cliente'],
+                datos['tipo_documento'],
+                datos['numero_documento'],
+                datos['telefono_cliente'],
+                datos['email_cliente'],
+                datos['tipo'],
+                datos['motivo'],
+                datos['sede_id'],
                 session.get('usuario_id')
             )
 
@@ -465,7 +554,7 @@ def guardar_solicitud_cliente():
             if res == True:
                 return render_template('exito_solicitud_cliente.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la insercion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la inserción.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -482,8 +571,8 @@ def listar_solicitudes_cliente_view():
     rol = session.get('usuario_rol')
     sede_id_fijo = session.get('usuario_sede_id') if rol == 'admin_tienda' else None
 
-    fecha_desde = request.args.get('fecha_desde', '').strip()
-    fecha_hasta = request.args.get('fecha_hasta', '').strip()
+    fecha_desde = _fecha_filtro(request.args.get('fecha_desde', ''))
+    fecha_hasta = _fecha_filtro(request.args.get('fecha_hasta', ''))
     sede_id     = request.args.get('sede_id', '').strip()
     tipo        = request.args.get('tipo', '').strip()
     estado      = request.args.get('estado', '').strip()
@@ -521,8 +610,8 @@ def reporte_solicitudes_cliente():
 
     solicitudes, _ = listar_solicitudes_filtrado(
         sede_id_fijo = sede_id_fijo or None,
-        fecha_desde  = request.args.get('fecha_desde', '').strip() or None,
-        fecha_hasta  = request.args.get('fecha_hasta', '').strip() or None,
+        fecha_desde  = _fecha_filtro(request.args.get('fecha_desde', '')) or None,
+        fecha_hasta  = _fecha_filtro(request.args.get('fecha_hasta', '')) or None,
         sede_id      = request.args.get('sede_id', '').strip() or None,
         tipo         = request.args.get('tipo', '').strip() or None,
         estado       = request.args.get('estado', '').strip() or None,
@@ -543,7 +632,7 @@ def reporte_solicitudes_cliente():
         {'clave': 'created_at',       'titulo': 'Fecha',          'peso': 1.3},
     ]
 
-    formato = request.args.get('formato', 'csv').strip().lower()
+    formato = request.args.get('formato', 'xlsx').strip().lower()
     return generar_reporte(formato, 'solicitudes_cliente',
                            'Reporte de Solicitudes de Cliente', columnas, solicitudes)
 
@@ -551,7 +640,8 @@ def reporte_solicitudes_cliente():
 @app.route('/cargar-formulario-editar-solicitud-cliente/<int:id_solicitud>')
 def cargar_formulario_editar_solicitud_cliente(id_solicitud):
     resultado = obtener_solicitud_cliente_x_id(id_solicitud)
-    return render_template('form_solicitud_cliente_edit.html', solicitud=resultado[0])
+    sedes = listar_sedes() if not session.get('usuario_sede_id') else None
+    return render_template('form_solicitud_cliente_edit.html', solicitud=resultado[0], sedes=sedes)
 
 
 @app.route('/actualizar-solicitud-cliente', methods=['POST'])
@@ -559,20 +649,31 @@ def actualizar_solicitud_cliente_view():
 
     if request.method == 'POST':
 
+        sede_fija = session.get('usuario_sede_id')
+        sedes_validas = None
+        if not sede_fija:
+            sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+
+        try:
+            datos = validar_solicitud_cliente(request.form, sede_fija=sede_fija, sedes_validas=sedes_validas)
+            id_solicitud = validar_id(request.form.get('id'), 'ID de solicitud')
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
         try:
 
             objSolicitud = SolicitudCliente(
-                request.form.get('nombre_cliente'),
-                request.form.get('apellido_cliente'),
-                request.form.get('tipo_documento'),
-                request.form.get('numero_documento'),
-                request.form.get('telefono_cliente'),
-                request.form.get('email_cliente'),
-                request.form.get('tipo'),
-                request.form.get('motivo'),
-                session.get('usuario_sede_id'),
+                datos['nombre_cliente'],
+                datos['apellido_cliente'],
+                datos['tipo_documento'],
+                datos['numero_documento'],
+                datos['telefono_cliente'],
+                datos['email_cliente'],
+                datos['tipo'],
+                datos['motivo'],
+                datos['sede_id'],
                 session.get('usuario_id'),
-                request.form.get('id')
+                id_solicitud
             )
 
             res = actualizar_solicitud_cliente(objSolicitud)
@@ -580,7 +681,7 @@ def actualizar_solicitud_cliente_view():
             if res == True:
                 return render_template('exito_solicitud_cliente.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la actualizacion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la actualización.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -614,9 +715,12 @@ def gestionar_solicitud_view(id_solicitud):
 @app.route('/gestionar-solicitud/<int:id_solicitud>', methods=['POST'])
 def guardar_gestion_solicitud(id_solicitud):
     try:
-        estado      = request.form.get('estado')
-        observacion = request.form.get('observacion_admin', '').strip()
-        res = gestionar_solicitud(id_solicitud, estado, observacion, session.get('usuario_id'))
+        try:
+            datos = validar_gestion_solicitud(request.form)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores),
+                url_volver='/listar-solicitudes-cliente'), 400
+        res = gestionar_solicitud(id_solicitud, datos['estado'], datos['observacion_admin'], session.get('usuario_id'))
         if res == True:
             return redirect('/listar-solicitudes-cliente')
         return render_template('error400.html', mensaje=res, url_volver='/listar-solicitudes-cliente'), 400
@@ -626,7 +730,8 @@ def guardar_gestion_solicitud(id_solicitud):
 
 @app.route('/trabajador')
 def form_trabajador():
-    return render_template('form_trabajador.html')
+    sedes = listar_sedes() if not session.get('usuario_sede_id') else None
+    return render_template('form_trabajador.html', sedes=sedes)
 
 
 @app.route('/guardar-trabajador', methods=['POST'])
@@ -634,18 +739,28 @@ def guardar_trabajador():
 
     if request.method == 'POST':
 
+        sede_fija = session.get('usuario_sede_id')
+        sedes_validas = None
+        if not sede_fija:
+            sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+
+        try:
+            datos = validar_trabajador(request.form, sede_fija=sede_fija, sedes_validas=sedes_validas)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores), url_volver='/trabajador'), 400
+
         try:
 
             objTrabajador = Trabajador(
-                request.form.get('nombre'),
-                request.form.get('apellido'),
-                request.form.get('tipo_documento'),
-                request.form.get('numero_documento'),
-                request.form.get('telefono'),
-                request.form.get('rol'),
-                request.form.get('fecha_inicio'),
-                request.form.get('fecha_fin') or None,
-                session.get('usuario_sede_id'),
+                datos['nombre'],
+                datos['apellido'],
+                datos['tipo_documento'],
+                datos['numero_documento'],
+                datos['telefono'],
+                datos['rol'],
+                datos['fecha_inicio'],
+                datos['fecha_fin'],
+                datos['sede_id'],
                 session.get('usuario_id')
             )
 
@@ -654,7 +769,7 @@ def guardar_trabajador():
             if res == True:
                 return render_template('exito_trabajador.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la insercion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la inserción.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -671,8 +786,8 @@ def listar_trabajadores_view():
     rol_usuario = session.get('usuario_rol')
     sede_id_fijo = session.get('usuario_sede_id') if rol_usuario == 'admin_tienda' else None
 
-    fecha_desde = request.args.get('fecha_desde', '').strip()
-    fecha_hasta = request.args.get('fecha_hasta', '').strip()
+    fecha_desde = _fecha_filtro(request.args.get('fecha_desde', ''))
+    fecha_hasta = _fecha_filtro(request.args.get('fecha_hasta', ''))
     sede_id     = request.args.get('sede_id', '').strip()
     rol         = request.args.get('rol', '').strip()
     estado      = request.args.get('estado', '').strip()
@@ -710,8 +825,8 @@ def reporte_trabajadores():
 
     trabajadores, _ = listar_trabajadores_filtrado(
         sede_id_fijo = sede_id_fijo or None,
-        fecha_desde  = request.args.get('fecha_desde', '').strip() or None,
-        fecha_hasta  = request.args.get('fecha_hasta', '').strip() or None,
+        fecha_desde  = _fecha_filtro(request.args.get('fecha_desde', '')) or None,
+        fecha_hasta  = _fecha_filtro(request.args.get('fecha_hasta', '')) or None,
         sede_id      = request.args.get('sede_id', '').strip() or None,
         rol          = request.args.get('rol', '').strip() or None,
         estado       = request.args.get('estado', '').strip() or None,
@@ -733,7 +848,7 @@ def reporte_trabajadores():
         {'clave': 'registrado_por',  'titulo': 'Registrado por', 'peso': 1.3},
     ]
 
-    formato = request.args.get('formato', 'csv').strip().lower()
+    formato = request.args.get('formato', 'xlsx').strip().lower()
     return generar_reporte(formato, 'trabajadores',
                            'Reporte de Trabajadores', columnas, trabajadores)
 
@@ -741,7 +856,8 @@ def reporte_trabajadores():
 @app.route('/cargar-formulario-editar-trabajador/<int:id_trabajador>')
 def cargar_formulario_editar_trabajador(id_trabajador):
     resultado = obtener_trabajador_x_id(id_trabajador)
-    return render_template('form_trabajador_edit.html', trabajador=resultado[0])
+    sedes = listar_sedes() if not session.get('usuario_sede_id') else None
+    return render_template('form_trabajador_edit.html', trabajador=resultado[0], sedes=sedes)
 
 
 @app.route('/actualizar-trabajador', methods=['POST'])
@@ -749,20 +865,31 @@ def actualizar_trabajador_view():
 
     if request.method == 'POST':
 
+        sede_fija = session.get('usuario_sede_id')
+        sedes_validas = None
+        if not sede_fija:
+            sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+
+        try:
+            datos = validar_trabajador(request.form, sede_fija=sede_fija, sedes_validas=sedes_validas)
+            id_trabajador = validar_id(request.form.get('id'), 'ID de trabajador')
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
         try:
 
             objTrabajador = Trabajador(
-                request.form.get('nombre'),
-                request.form.get('apellido'),
-                request.form.get('tipo_documento'),
-                request.form.get('numero_documento'),
-                request.form.get('telefono'),
-                request.form.get('rol'),
-                request.form.get('fecha_inicio'),
-                request.form.get('fecha_fin') or None,
-                session.get('usuario_sede_id'),
+                datos['nombre'],
+                datos['apellido'],
+                datos['tipo_documento'],
+                datos['numero_documento'],
+                datos['telefono'],
+                datos['rol'],
+                datos['fecha_inicio'],
+                datos['fecha_fin'],
+                datos['sede_id'],
                 session.get('usuario_id'),
-                request.form.get('id')
+                id_trabajador
             )
 
             res = actualizar_trabajador(objTrabajador)
@@ -770,7 +897,7 @@ def actualizar_trabajador_view():
             if res == True:
                 return render_template('exito_trabajador.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la actualizacion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la actualización.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -804,16 +931,22 @@ def guardar_movimiento_equipo():
 
     if request.method == 'POST':
 
+        sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+        try:
+            datos = validar_movimiento_equipo(request.form, sedes_validas)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores), url_volver='/movimiento-equipo'), 400
+
         try:
 
             objMovimiento = MovimientoEquipo(
-                request.form.get('tipo'),
-                request.form.get('tipo_equipo'),
-                request.form.get('modelo'),
-                request.form.get('numero_serie'),
-                request.form.get('sede_id'),
-                request.form.get('responsable'),
-                request.form.get('fecha'),
+                datos['tipo'],
+                datos['tipo_equipo'],
+                datos['modelo'],
+                datos['numero_serie'],
+                datos['sede_id'],
+                datos['responsable'],
+                datos['fecha'],
                 session.get('usuario_id')
             )
 
@@ -822,7 +955,7 @@ def guardar_movimiento_equipo():
             if res == True:
                 return render_template('exito_movimiento_equipo.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la insercion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la inserción.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -836,8 +969,8 @@ def guardar_movimiento_equipo():
 
 @app.route('/listar-movimientos-equipo')
 def listar_movimientos_equipo_view():
-    fecha_desde = request.args.get('fecha_desde', '').strip()
-    fecha_hasta = request.args.get('fecha_hasta', '').strip()
+    fecha_desde = _fecha_filtro(request.args.get('fecha_desde', ''))
+    fecha_hasta = _fecha_filtro(request.args.get('fecha_hasta', ''))
     sede_id     = request.args.get('sede_id', '').strip()
     tipo        = request.args.get('tipo', '').strip()
     tipo_equipo = request.args.get('tipo_equipo', '').strip()
@@ -870,8 +1003,8 @@ def listar_movimientos_equipo_view():
 @app.route('/reporte-movimientos-equipo')
 def reporte_movimientos_equipo():
     movimientos, _ = listar_movimientos_filtrado(
-        fecha_desde = request.args.get('fecha_desde', '').strip() or None,
-        fecha_hasta = request.args.get('fecha_hasta', '').strip() or None,
+        fecha_desde = _fecha_filtro(request.args.get('fecha_desde', '')) or None,
+        fecha_hasta = _fecha_filtro(request.args.get('fecha_hasta', '')) or None,
         sede_id     = request.args.get('sede_id', '').strip() or None,
         tipo        = request.args.get('tipo', '').strip() or None,
         tipo_equipo = request.args.get('tipo_equipo', '').strip() or None,
@@ -891,7 +1024,7 @@ def reporte_movimientos_equipo():
         {'clave': 'registrado_por', 'titulo': 'Registrado por', 'peso': 1.3},
     ]
 
-    formato = request.args.get('formato', 'csv').strip().lower()
+    formato = request.args.get('formato', 'xlsx').strip().lower()
     return generar_reporte(formato, 'movimientos_equipo',
                            'Reporte de Movimientos de Equipo', columnas, movimientos)
 
@@ -908,18 +1041,25 @@ def actualizar_movimiento_equipo_view():
 
     if request.method == 'POST':
 
+        sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+        try:
+            datos = validar_movimiento_equipo(request.form, sedes_validas)
+            id_movimiento = validar_id(request.form.get('id'), 'ID de movimiento')
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
         try:
 
             objMovimiento = MovimientoEquipo(
-                request.form.get('tipo'),
-                request.form.get('tipo_equipo'),
-                request.form.get('modelo'),
-                request.form.get('numero_serie'),
-                request.form.get('sede_id'),
-                request.form.get('responsable'),
-                request.form.get('fecha'),
+                datos['tipo'],
+                datos['tipo_equipo'],
+                datos['modelo'],
+                datos['numero_serie'],
+                datos['sede_id'],
+                datos['responsable'],
+                datos['fecha'],
                 session.get('usuario_id'),
-                request.form.get('id')
+                id_movimiento
             )
 
             res = actualizar_movimiento_equipo(objMovimiento)
@@ -927,7 +1067,7 @@ def actualizar_movimiento_equipo_view():
             if res == True:
                 return render_template('exito_movimiento_equipo.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la actualizacion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la actualización.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -961,15 +1101,21 @@ def guardar_usuario():
 
     if request.method == 'POST':
 
+        sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+        try:
+            datos = validar_usuario(request.form, sedes_validas)
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores), url_volver='/usuario'), 400
+
         try:
 
             objUsuario = Usuario(
-                request.form.get('nombre_completo'),
-                request.form.get('username'),
-                request.form.get('password'),
-                request.form.get('rol'),
-                request.form.get('sede_id'),
-                request.form.get('activo'),
+                datos['nombre_completo'],
+                datos['username'],
+                datos['password'],
+                datos['rol'],
+                datos['sede_id'],
+                datos['activo'],
             )
 
             res = insertar_usuario(objUsuario)
@@ -977,7 +1123,7 @@ def guardar_usuario():
             if res == True:
                 return render_template('exito_usuario.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la insercion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la inserción.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 
@@ -1027,16 +1173,23 @@ def actualizar_usuario_view():
 
     if request.method == 'POST':
 
+        sedes_validas = {s['id'] for s in (listar_sedes() or [])}
+        try:
+            datos = validar_usuario(request.form, sedes_validas)
+            id_usuario = validar_id(request.form.get('id'), 'ID de usuario')
+        except ValidationError as e:
+            return render_template('error400.html', mensaje='; '.join(e.errores)), 400
+
         try:
 
             objUsuario = Usuario(
-                request.form.get('nombre_completo'),
-                request.form.get('username'),
-                request.form.get('password'),
-                request.form.get('rol'),
-                request.form.get('sede_id'),
-                request.form.get('activo'),
-                request.form.get('id'),
+                datos['nombre_completo'],
+                datos['username'],
+                datos['password'],
+                datos['rol'],
+                datos['sede_id'],
+                datos['activo'],
+                id_usuario,
             )
 
             res = actualizar_usuario(objUsuario)
@@ -1044,7 +1197,7 @@ def actualizar_usuario_view():
             if res == True:
                 return render_template('exito_usuario.html')
             elif res == False:
-                return render_template('error400.html', mensaje='Problemas en la actualizacion.'), 400
+                return render_template('error400.html', mensaje='Problemas en la actualización.'), 400
             else:
                 return render_template('error400.html', mensaje=res), 400
 

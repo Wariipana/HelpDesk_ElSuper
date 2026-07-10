@@ -11,7 +11,18 @@
   {% include '_sidebar.html' %}
   <div class="main-content">
     <div class="header-list">
-      <h1>Bienvenido</h1>
+      <div>
+        <h1>Bienvenido, {{ session.get('usuario_nombre', 'Usuario') }}</h1>
+        <p class="dashboard-saludo-sub">
+          {% if session.get('usuario_rol') == 'admin_tienda' %}
+            Mostrando datos de tu sede: <strong>{{ session.get('usuario_sede', '—') }}</strong>
+          {% elif session.get('usuario_rol') == 'supervisor' %}
+            Supervisor &mdash; visibilidad de toda la red de sedes
+          {% else %}
+            Administrador del sistema &mdash; visibilidad de toda la red de sedes
+          {% endif %}
+        </p>
+      </div>
     </div>
 
     <section class="dashboard-seccion">
@@ -58,6 +69,137 @@
           </div>
         </a>
 
+      </div>
+    </section>
+
+    <section class="dashboard-seccion">
+      <h2 class="dashboard-subtitulo">Solicitudes de cliente por estado</h2>
+      <div class="dashboard-cards">
+
+        <a href="/listar-solicitudes-cliente" class="dashboard-card dashboard-card--total">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">support_agent</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_solicitudes.total }}</span>
+            <span class="dashboard-card-label">Total de solicitudes</span>
+          </div>
+        </a>
+
+        <a href="/listar-solicitudes-cliente?estado=pendiente" class="dashboard-card dashboard-card--pendiente">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">schedule</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_solicitudes.pendiente }}</span>
+            <span class="dashboard-card-label">Pendientes</span>
+          </div>
+        </a>
+
+        <a href="/listar-solicitudes-cliente?estado=aprobado" class="dashboard-card dashboard-card--resuelto">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">task_alt</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_solicitudes.aprobado }}</span>
+            <span class="dashboard-card-label">Aprobadas</span>
+          </div>
+        </a>
+
+        <a href="/listar-solicitudes-cliente?estado=rechazado" class="dashboard-card dashboard-card--rechazado">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">block</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ conteo_solicitudes.rechazado }}</span>
+            <span class="dashboard-card-label">Rechazadas</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <section class="dashboard-seccion">
+      <h2 class="dashboard-subtitulo">Resumen general</h2>
+      <div class="dashboard-cards">
+
+        <a href="/listar-trabajadores" class="dashboard-card dashboard-card--info">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">badge</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ resumen_trabajadores.total }}</span>
+            <span class="dashboard-card-label">Trabajadores registrados</span>
+          </div>
+        </a>
+
+        <a href="/listar-trabajadores?estado=vencido" class="dashboard-card dashboard-card--rechazado">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">event_busy</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ resumen_trabajadores.vencido }}</span>
+            <span class="dashboard-card-label">Contratos vencidos</span>
+          </div>
+        </a>
+
+        {% if resumen_sistema %}
+        <a href="/listar-sedes" class="dashboard-card dashboard-card--info">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">location_on</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ resumen_sistema.sedes }}</span>
+            <span class="dashboard-card-label">Sedes activas</span>
+          </div>
+        </a>
+
+        <a href="/listar-usuarios" class="dashboard-card dashboard-card--info">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">manage_accounts</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ resumen_sistema.usuarios_activos }}</span>
+            <span class="dashboard-card-label">Usuarios activos</span>
+          </div>
+        </a>
+
+        <a href="/listar-movimientos-equipo" class="dashboard-card dashboard-card--en-proceso">
+          <div class="dashboard-card-icono">
+            <span class="material-symbols-outlined">move_item</span>
+          </div>
+          <div class="dashboard-card-info">
+            <span class="dashboard-card-numero">{{ resumen_sistema.movimientos.total }}</span>
+            <span class="dashboard-card-label">Movimientos de equipo (30 días)</span>
+          </div>
+        </a>
+        {% endif %}
+
+      </div>
+    </section>
+
+    <section class="dashboard-seccion">
+      <h2 class="dashboard-subtitulo">Tickets recientes</h2>
+      <div class="tabla-contenedor dashboard-recientes">
+        {% if tickets_recientes %}
+          {% for ticket in tickets_recientes %}
+          <a href="{{ url_for('gestionar_ticket_view', id_ticket=ticket['id']) }}" class="dashboard-reciente-fila">
+            <div class="dashboard-reciente-info">
+              <span class="dashboard-reciente-titulo">{{ ticket['titulo'] }}</span>
+              <span class="dashboard-reciente-meta">
+                {{ ticket['sede'] }} &middot;
+                {{ ticket['created_at'].strftime('%d/%m/%Y %H:%M') if ticket['created_at'] else '—' }}
+              </span>
+            </div>
+            <div class="dashboard-reciente-badges">
+              <span class="badge-prioridad badge-prioridad--{{ ticket['prioridad'] }}">{{ ticket['prioridad'] | capitalize }}</span>
+              <span class="badge-estado badge-estado--{{ ticket['estado'] | replace(' ', '-') }}">{{ ticket['estado'] | capitalize }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="sin-registros">No hay tickets recientes</div>
+        {% endif %}
       </div>
     </section>
   </div>

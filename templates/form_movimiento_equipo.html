@@ -27,7 +27,7 @@
       <input type="text" id="modelo" name="modelo" data-validar="requerido"><br>
       <span class="campo-error"></span>
 
-      <label for="numero_serie">Numero de serie:</label><br>
+      <label for="numero_serie">Número de serie:</label><br>
       <input type="text" id="numero_serie" name="numero_serie" data-validar="requerido"><br>
       <span class="campo-error"></span>
 
@@ -41,11 +41,11 @@
       <span class="campo-error"></span>
 
       <label for="responsable">Responsable:</label><br>
-      <input type="text" id="responsable" name="responsable" data-validar="requerido"><br>
+      <input type="text" id="responsable" name="responsable" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="fecha">Fecha del movimiento:</label><br>
-      <input type="date" id="fecha" name="fecha" data-validar="fecha"><br>
+      <input type="date" id="fecha" name="fecha" min="1900-01-01" max="2100-12-31" data-validar="fecha"><br>
       <span class="campo-error"></span>
 
       <div class="campo-sesion">
@@ -80,6 +80,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
-  <script>configurarFormulario('form-movimiento-equipo', '¿Esta seguro que desea registrar el movimiento?');</script>
+  <script>configurarFormulario('form-movimiento-equipo', '¿Está seguro que desea registrar el movimiento?');</script>
 </body>
 </html>

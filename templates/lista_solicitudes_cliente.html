@@ -14,8 +14,8 @@
     <div class="header-list">
       <h1>Solicitudes de Cliente</h1>
       <div class="header-acciones">
-        <a href="{{ url_for('reporte_solicitudes_cliente', formato='csv', **filtros) }}" class="btn-reporte btn-reporte--csv">
-          <span class="material-symbols-outlined">table_view</span> CSV
+        <a href="{{ url_for('reporte_solicitudes_cliente', formato='xlsx', **filtros) }}" class="btn-reporte btn-reporte--xlsx">
+          <span class="material-symbols-outlined">table_view</span> Excel
         </a>
         <a href="{{ url_for('reporte_solicitudes_cliente', formato='pdf', **filtros) }}" class="btn-reporte btn-reporte--pdf">
           <span class="material-symbols-outlined">picture_as_pdf</span> PDF
@@ -29,11 +29,11 @@
       <div class="filtros-fila">
         <div class="filtro-grupo">
           <label for="f_fecha_desde">Desde</label>
-          <input type="date" id="f_fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde }}">
+          <input type="date" id="f_fecha_desde" name="fecha_desde" value="{{ filtros.fecha_desde }}" min="1900-01-01" max="2100-12-31">
         </div>
         <div class="filtro-grupo">
           <label for="f_fecha_hasta">Hasta</label>
-          <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+          <input type="date" id="f_fecha_hasta" name="fecha_hasta" value="{{ filtros.fecha_hasta }}" min="1900-01-01" max="2100-12-31">
         </div>
         {% if session.get('usuario_rol') in ('admin_ti', 'supervisor') and sedes %}
         <div class="filtro-grupo">
@@ -50,10 +50,8 @@
           <label for="f_tipo">Tipo</label>
           <select id="f_tipo" name="tipo">
             <option value="">Todos</option>
-            <option value="reclamo"    {% if filtros.tipo == 'reclamo' %}selected{% endif %}>Reclamo</option>
-            <option value="queja"      {% if filtros.tipo == 'queja' %}selected{% endif %}>Queja</option>
-            <option value="consulta"   {% if filtros.tipo == 'consulta' %}selected{% endif %}>Consulta</option>
-            <option value="sugerencia" {% if filtros.tipo == 'sugerencia' %}selected{% endif %}>Sugerencia</option>
+            <option value="alta" {% if filtros.tipo == 'alta' %}selected{% endif %}>Alta</option>
+            <option value="baja" {% if filtros.tipo == 'baja' %}selected{% endif %}>Baja</option>
           </select>
         </div>
         <div class="filtro-grupo">
@@ -73,7 +71,7 @@
     </form>
 
     <div class="tabla-info">
-      <span>{{ total }} resultado(s) &mdash; pagina {{ pagina }} de {{ total_paginas }}</span>
+      <span>{{ total }} resultado(s) &mdash; página {{ pagina }} de {{ total_paginas }}</span>
     </div>
 
     <div class="tabla-contenedor">
@@ -139,7 +137,7 @@
 
   <div id="modal-confirmar" class="modal-overlay modal-oculto">
     <div class="modal-caja">
-      <h3>Confirmar eliminacion</h3>
+      <h3>Confirmar eliminación</h3>
       <p id="modal-confirmar-texto"></p>
       <div class="modal-botones">
         <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>

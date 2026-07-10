@@ -1,7 +1,6 @@
-from flask import Blueprint
-from flask_jwt_extended import JWTManager
+from flask_jwt import JWT
 
-from apis.api_auth import api_auth
+from apis.api_auth import authenticate, identity
 from apis.api_usuarios import api_usuarios
 from apis.api_sedes import api_sedes
 from apis.api_tickets import api_tickets
@@ -11,9 +10,10 @@ from apis.api_trabajadores import api_trabajadores
 
 
 def registrar_apis(app):
-    jwt = JWTManager(app)
+    # Registra el endpoint de login por defecto de flask-jwt (POST /auth)
+    # usando authenticate()/identity() de apis/api_auth.py.
+    jwt = JWT(app, authenticate, identity)
 
-    app.register_blueprint(api_auth)
     app.register_blueprint(api_usuarios)
     app.register_blueprint(api_sedes)
     app.register_blueprint(api_tickets)

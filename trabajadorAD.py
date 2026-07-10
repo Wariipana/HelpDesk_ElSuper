@@ -56,6 +56,10 @@ def insertar_trabajador(objTrabajador: Trabajador):
                 connection.commit()
             return True
         return False
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1452:
+            return 'Tu sede asignada ya no existe en el sistema (puede haber cambiado). Cierra sesión, vuelve a iniciar sesión y vuelve a intentarlo.'
+        return e.args[1]
     except pymysql.MySQLError as e:
         return e.args[1]
 
@@ -143,6 +147,36 @@ def listar_trabajadores_filtrado(sede_id_fijo=None, fecha_desde=None, fecha_hast
         return [], 0
 
 
+def contar_trabajadores_resumen(sede_id_fijo=None):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT " + ESTADO_ROL_CASE + " AS `estado_rol`, COUNT(*) AS `cantidad` "
+                        "FROM `trabajadores` t "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+                    if sede_id_fijo:
+                        sql += "AND t.`sede_id` = %s "
+                        params.append(sede_id_fijo)
+                    sql += "GROUP BY `estado_rol`"
+
+                    cursor.execute(sql, params)
+                    filas = cursor.fetchall()
+
+                    conteo = {'vigente': 0, 'vencido': 0, 'sin_fecha_fin': 0}
+                    for fila in filas:
+                        conteo[fila['estado_rol']] = fila['cantidad']
+                    conteo['total'] = sum(conteo.values())
+                    return conteo
+        return {'vigente': 0, 'vencido': 0, 'sin_fecha_fin': 0, 'total': 0}
+    except:
+        return {'vigente': 0, 'vencido': 0, 'sin_fecha_fin': 0, 'total': 0}
+
+
 def listar_trabajadores_x_sede(sede_id):
     try:
         connection = obtenerconexion()
@@ -220,6 +254,10 @@ def actualizar_trabajador(objTrabajador: Trabajador):
                 connection.commit()
             return True
         return False
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1452:
+            return 'Tu sede asignada ya no existe en el sistema (puede haber cambiado). Cierra sesión, vuelve a iniciar sesión y vuelve a intentarlo.'
+        return e.args[1]
     except pymysql.MySQLError as e:
         return e.args[1]
 

@@ -1,10 +1,13 @@
 import json
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pymysql
 
 from ticketClass import Ticket
 from conexionBD import obtenerconexion
+
+TZ_PERU = ZoneInfo('America/Lima')
 
 
 # -----------------------------------------------
@@ -66,6 +69,10 @@ def insertar_ticket(objTicket: Ticket):
                 connection.commit()
             return True
         return False
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1452:
+            return 'Tu sede asignada ya no existe en el sistema (puede haber cambiado). Cierra sesión, vuelve a iniciar sesión y vuelve a intentarlo.'
+        return e.args[1]
     except pymysql.MySQLError as e:
         return e.args[1]
 
@@ -179,6 +186,33 @@ def contar_tickets_por_estado(sede_id_fijo=None):
         return {'pendiente': 0, 'en_proceso': 0, 'resuelto': 0, 'total': 0}
     except:
         return {'pendiente': 0, 'en_proceso': 0, 'resuelto': 0, 'total': 0}
+
+
+def listar_tickets_recientes(sede_id_fijo=None, limite=5):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT t.`id`, t.`titulo`, t.`prioridad`, t.`estado`, "
+                        "s.`nombre` AS `sede`, t.`created_at` "
+                        "FROM `tickets` t "
+                        "LEFT JOIN `sedes` s ON t.`sede_id` = s.`id` "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+                    if sede_id_fijo:
+                        sql += "AND t.`sede_id` = %s "
+                        params.append(sede_id_fijo)
+                    sql += "ORDER BY t.`created_at` DESC LIMIT %s"
+                    params.append(limite)
+
+                    cursor.execute(sql, params)
+                    return cursor.fetchall()
+        return []
+    except:
+        return []
 
 
 def listar_tickets_x_sede(sede_id):
@@ -314,7 +348,7 @@ def agregar_comentario_ticket(p_id, texto, autor, rol):
                     historial.append({
                         'autor': autor or 'Usuario',
                         'rol': rol or '',
-                        'fecha': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                        'fecha': datetime.now(TZ_PERU).strftime('%Y-%m-%d %H:%M'),
                         'texto': texto,
                     })
 

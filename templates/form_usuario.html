@@ -13,15 +13,15 @@
     <h1>Registrar Usuario</h1>
     <form id="form-usuario" action="/guardar-usuario" method="post">
       <label for="nombre_completo">Nombre completo:</label><br>
-      <input type="text" id="nombre_completo" name="nombre_completo" data-validar="requerido"><br>
+      <input type="text" id="nombre_completo" name="nombre_completo" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="username">Username:</label><br>
-      <input type="text" id="username" name="username" data-validar="requerido"><br>
+      <input type="text" id="username" name="username" data-validar="username"><br>
       <span class="campo-error"></span>
 
-      <label for="password">Contrasena:</label><br>
-      <input type="password" id="password" name="password" data-validar="requerido"><br>
+      <label for="password">Contraseña:</label><br>
+      <input type="password" id="password" name="password" data-validar="password"><br>
       <span class="campo-error"></span>
 
       <label for="rol">Rol:</label><br>
@@ -96,7 +96,7 @@
       actualizarSede();
     }());
 
-    configurarFormulario('form-usuario', '¿Esta seguro que desea registrar el usuario?');
+    configurarFormulario('form-usuario', '¿Está seguro que desea registrar el usuario?');
   </script>
 </body>
 </html>

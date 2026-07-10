@@ -9,7 +9,10 @@ def obtenerconexion():
             user='root',
             password='hkgInrsJKwLolWdhqHOnoPtLGIpQpVMe',
             database='railway',
-            cursorclass=pymysql.cursors.DictCursor
+            cursorclass=pymysql.cursors.DictCursor,
+            # Peru no usa horario de verano, por eso el offset fijo -05:00
+            # (evita depender de las tablas de zonas horarias del servidor MySQL).
+            init_command="SET time_zone = '-05:00'"
         )
         return connection
     except pymysql.MySQLError as e:

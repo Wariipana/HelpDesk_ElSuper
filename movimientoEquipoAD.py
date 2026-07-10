@@ -107,6 +107,31 @@ def listar_movimientos_filtrado(fecha_desde=None, fecha_hasta=None,
         return [], 0
 
 
+def contar_movimientos_recientes(dias=30):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT me.`tipo`, COUNT(*) AS `cantidad` "
+                        "FROM `movimientos_equipo` me "
+                        "WHERE me.`fecha` >= DATE_SUB(CURDATE(), INTERVAL %s DAY) "
+                        "GROUP BY me.`tipo`"
+                    )
+                    cursor.execute(sql, (dias,))
+                    filas = cursor.fetchall()
+
+                    conteo = {'entrada': 0, 'salida': 0}
+                    for fila in filas:
+                        conteo[fila['tipo']] = fila['cantidad']
+                    conteo['total'] = sum(conteo.values())
+                    return conteo
+        return {'entrada': 0, 'salida': 0, 'total': 0}
+    except:
+        return {'entrada': 0, 'salida': 0, 'total': 0}
+
+
 def obtener_movimiento_equipo_x_id(p_id):
     try:
         connection = obtenerconexion()

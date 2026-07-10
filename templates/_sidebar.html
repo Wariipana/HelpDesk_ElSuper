@@ -9,25 +9,34 @@
     <span class="brand-sub">HelpDesk</span>
   </div>
   <nav>
-    <span class="nav-label">Modulos</span>
-    <a href="{{ url_for('listar_tickets_view') }}">
+    <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.path == url_for('dashboard') }}">
+      <span class="material-symbols-outlined">space_dashboard</span>
+      Inicio
+    </a>
+
+    <span class="nav-label">Módulos</span>
+    <a href="{{ url_for('listar_tickets_view') }}" class="{{ 'active' if request.path == url_for('listar_tickets_view') }}">
       <span class="material-symbols-outlined">confirmation_number</span>
       Tickets
     </a>
-    <a href="{{ url_for('listar_trabajadores_view') }}">
+    <a href="{{ url_for('listar_solicitudes_cliente_view') }}" class="{{ 'active' if request.path == url_for('listar_solicitudes_cliente_view') }}">
+      <span class="material-symbols-outlined">support_agent</span>
+      Solicitudes de Cliente
+    </a>
+    <a href="{{ url_for('listar_trabajadores_view') }}" class="{{ 'active' if request.path == url_for('listar_trabajadores_view') }}">
       <span class="material-symbols-outlined">badge</span>
       Trabajadores
     </a>
     {% if session.get('usuario_rol') in ('admin_ti', 'supervisor') %}
-    <a href="{{ url_for('listar_movimientos_equipo_view') }}">
+    <a href="{{ url_for('listar_movimientos_equipo_view') }}" class="{{ 'active' if request.path == url_for('listar_movimientos_equipo_view') }}">
       <span class="material-symbols-outlined">move_item</span>
       Movimientos de Equipo
     </a>
-    <a href="{{ url_for('listar_sedes_view') }}">
+    <a href="{{ url_for('listar_sedes_view') }}" class="{{ 'active' if request.path == url_for('listar_sedes_view') }}">
       <span class="material-symbols-outlined">location_on</span>
       Sedes
     </a>
-    <a href="{{ url_for('listar_usuarios_view') }}">
+    <a href="{{ url_for('listar_usuarios_view') }}" class="{{ 'active' if request.path == url_for('listar_usuarios_view') }}">
       <span class="material-symbols-outlined">manage_accounts</span>
       Usuarios
     </a>
@@ -54,7 +63,7 @@
         <span class="sidebar-user-cargo">Admin. del Sistema</span>
       {% endif %}
     </div>
-    <a href="{{ url_for('logout') }}" class="sidebar-logout" title="Cerrar sesion">
+    <a href="{{ url_for('logout') }}" class="sidebar-logout" title="Cerrar sesión">
       <span class="material-symbols-outlined">logout</span>
     </a>
   </div>

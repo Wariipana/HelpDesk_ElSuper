@@ -15,11 +15,11 @@
       <input type="hidden" name="id" value="{{ trabajador['id'] }}">
 
       <label for="nombre">Nombre:</label><br>
-      <input type="text" id="nombre" name="nombre" value="{{ trabajador['nombre'] }}" data-validar="requerido"><br>
+      <input type="text" id="nombre" name="nombre" value="{{ trabajador['nombre'] }}" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="apellido">Apellido:</label><br>
-      <input type="text" id="apellido" name="apellido" value="{{ trabajador['apellido'] }}" data-validar="requerido"><br>
+      <input type="text" id="apellido" name="apellido" value="{{ trabajador['apellido'] }}" data-validar="nombre"><br>
       <span class="campo-error"></span>
 
       <label for="tipo_documento">Tipo de documento:</label><br>
@@ -33,11 +33,11 @@
       </select><br>
       <span class="campo-error"></span>
 
-      <label for="numero_documento">Numero de documento:</label><br>
+      <label for="numero_documento">Número de documento:</label><br>
       <input type="text" id="numero_documento" name="numero_documento" value="{{ trabajador['numero_documento'] }}" data-validar="documento"><br>
       <span class="campo-error"></span>
 
-      <label for="telefono">Telefono:</label><br>
+      <label for="telefono">Teléfono:</label><br>
       <input type="text" id="telefono" name="telefono" value="{{ trabajador['telefono'] }}" data-validar="telefono"><br>
       <span class="campo-error"></span>
 
@@ -46,13 +46,14 @@
       <span class="campo-error"></span>
 
       <label for="fecha_inicio">Fecha de inicio en el rol:</label><br>
-      <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ trabajador['fecha_inicio'].strftime('%Y-%m-%d') if trabajador['fecha_inicio'] else '' }}" data-validar="fecha"><br>
+      <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ trabajador['fecha_inicio'].strftime('%Y-%m-%d') if trabajador['fecha_inicio'] else '' }}" min="1900-01-01" max="2100-12-31" data-validar="fecha"><br>
       <span class="campo-error"></span>
 
       <label for="fecha_fin">Fecha de fin (opcional):</label><br>
-      <input type="date" id="fecha_fin" name="fecha_fin" value="{{ trabajador['fecha_fin'].strftime('%Y-%m-%d') if trabajador['fecha_fin'] else '' }}" data-validar="fecha-fin"><br>
+      <input type="date" id="fecha_fin" name="fecha_fin" value="{{ trabajador['fecha_fin'].strftime('%Y-%m-%d') if trabajador['fecha_fin'] else '' }}" min="1900-01-01" max="2100-12-31" data-validar="fecha-fin"><br>
       <span class="campo-error"></span>
 
+      {% if session.get('usuario_sede_id') %}
       <div class="campo-sesion">
         <span class="campo-sesion-label">Sede</span>
         <span class="campo-sesion-valor">
@@ -60,6 +61,16 @@
           {{ session.get('usuario_sede') or '—' }}
         </span>
       </div>
+      {% else %}
+      <label for="sede_id">Sede:</label><br>
+      <select id="sede_id" name="sede_id" data-validar="requerido">
+        <option value="">Selecciona una sede</option>
+        {% for s in sedes %}
+        <option value="{{ s.id }}" {% if trabajador['sede_id'] == s.id %}selected{% endif %}>{{ s.nombre }}</option>
+        {% endfor %}
+      </select><br>
+      <span class="campo-error"></span>
+      {% endif %}
 
       <div class="campo-sesion">
         <span class="campo-sesion-label">Registrado por</span>
@@ -93,6 +104,6 @@
   </div>
 
   <script src="/static/validaciones.js"></script>
-  <script>configurarFormulario('form-trabajador-edit', '¿Esta seguro que desea guardar los cambios del trabajador?');</script>
+  <script>configurarFormulario('form-trabajador-edit', '¿Está seguro que desea guardar los cambios del trabajador?');</script>
 </body>
 </html>

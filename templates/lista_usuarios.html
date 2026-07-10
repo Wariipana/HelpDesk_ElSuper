@@ -41,7 +41,7 @@
           <label for="f_activo">Activo</label>
           <select id="f_activo" name="activo">
             <option value="">Todos</option>
-            <option value="1" {% if filtros.activo == '1' %}selected{% endif %}>Si</option>
+            <option value="1" {% if filtros.activo == '1' %}selected{% endif %}>Sí</option>
             <option value="0" {% if filtros.activo == '0' %}selected{% endif %}>No</option>
           </select>
         </div>
@@ -53,7 +53,7 @@
     </form>
 
     <div class="tabla-info">
-      <span>{{ total }} resultado(s) &mdash; pagina {{ pagina }} de {{ total_paginas }}</span>
+      <span>{{ total }} resultado(s) &mdash; página {{ pagina }} de {{ total_paginas }}</span>
     </div>
 
     <div class="tabla-contenedor">
@@ -78,7 +78,7 @@
               <td data-label="Username">{{ usuario['username'] }}</td>
               <td data-label="Rol">{{ usuario['rol'] }}</td>
               <td data-label="Sede">{{ usuario['sede'] }}</td>
-              <td data-label="Activo">{{ 'Si' if usuario['activo'] == 1 else 'No' }}</td>
+              <td data-label="Activo">{{ 'Sí' if usuario['activo'] == 1 else 'No' }}</td>
               <td data-label="Acciones">
                 <div class="acciones">
                   <a href="{{ url_for('cargar_formulario_editar_usuario', id_usuario=usuario['id']) }}" class="btn-editar">Editar</a>
@@ -104,7 +104,7 @@
 
   <div id="modal-confirmar" class="modal-overlay modal-oculto">
     <div class="modal-caja">
-      <h3>Confirmar eliminacion</h3>
+      <h3>Confirmar eliminación</h3>
       <p id="modal-confirmar-texto"></p>
       <div class="modal-botones">
         <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>

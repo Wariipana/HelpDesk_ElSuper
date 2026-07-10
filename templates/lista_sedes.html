@@ -21,7 +21,7 @@
           <tr>
             <th class="col-ordenable" data-col="0">ID <span class="orden-icono"></span></th>
             <th class="col-ordenable" data-col="1">Nombre <span class="orden-icono"></span></th>
-            <th class="col-ordenable" data-col="2">Direccion <span class="orden-icono"></span></th>
+            <th class="col-ordenable" data-col="2">Dirección <span class="orden-icono"></span></th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -31,7 +31,7 @@
             <tr>
               <td data-label="ID">{{ sede['id'] }}</td>
               <td data-label="Nombre">{{ sede['nombre'] }}</td>
-              <td data-label="Direccion">{{ sede['direccion'] }}</td>
+              <td data-label="Dirección">{{ sede['direccion'] }}</td>
               <td data-label="Acciones">
                 <div class="acciones">
                   <a href="{{ url_for('cargar_formulario_editar_sede', id_sede=sede['id']) }}" class="btn-editar">Editar</a>
@@ -54,7 +54,7 @@
 
   <div id="modal-confirmar" class="modal-overlay modal-oculto">
     <div class="modal-caja">
-      <h3>Confirmar eliminacion</h3>
+      <h3>Confirmar eliminación</h3>
       <p id="modal-confirmar-texto"></p>
       <div class="modal-botones">
         <button class="btn-cancelar" onclick="cerrarModalConfirmar()">Cancelar</button>

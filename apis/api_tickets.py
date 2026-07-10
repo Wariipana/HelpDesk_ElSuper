@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt import jwt_required
 from conexionBD import obtenerconexion
 
 api_tickets = Blueprint('api_tickets', __name__)

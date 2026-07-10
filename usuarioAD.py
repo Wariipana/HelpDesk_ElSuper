@@ -49,6 +49,20 @@ def listar_usuarios():
         return None
 
 
+def contar_usuarios_activos():
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT COUNT(*) AS `total` FROM `usuarios` WHERE `activo` = 1")
+                    return cursor.fetchone()['total']
+        return 0
+    except:
+        return 0
+
+
 def listar_usuarios_filtrado(sede_id=None, rol=None, activo=None, pagina=1, por_pagina=20):
     try:
         connection = obtenerconexion()

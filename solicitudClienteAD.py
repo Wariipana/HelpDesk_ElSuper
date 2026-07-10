@@ -33,6 +33,10 @@ def insertar_solicitud_cliente(objSolicitud: SolicitudCliente):
                 connection.commit()
             return True
         return False
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1452:
+            return 'Tu sede asignada ya no existe en el sistema (puede haber cambiado). Cierra sesión, vuelve a iniciar sesión y vuelve a intentarlo.'
+        return e.args[1]
     except pymysql.MySQLError as e:
         return e.args[1]
 
@@ -114,6 +118,36 @@ def listar_solicitudes_filtrado(sede_id_fijo=None, fecha_desde=None, fecha_hasta
         return [], 0
     except:
         return [], 0
+
+
+def contar_solicitudes_por_estado(sede_id_fijo=None):
+    try:
+        connection = obtenerconexion()
+        if connection:
+            with connection:
+                with connection.cursor() as cursor:
+                    sql = (
+                        "SELECT sc.`estado`, COUNT(*) AS `cantidad` "
+                        "FROM `solicitudes_cliente` sc "
+                        "WHERE 1=1 "
+                    )
+                    params = []
+                    if sede_id_fijo:
+                        sql += "AND sc.`sede_id` = %s "
+                        params.append(sede_id_fijo)
+                    sql += "GROUP BY sc.`estado`"
+
+                    cursor.execute(sql, params)
+                    filas = cursor.fetchall()
+
+                    conteo = {'pendiente': 0, 'aprobado': 0, 'rechazado': 0}
+                    for fila in filas:
+                        conteo[fila['estado']] = fila['cantidad']
+                    conteo['total'] = sum(conteo.values())
+                    return conteo
+        return {'pendiente': 0, 'aprobado': 0, 'rechazado': 0, 'total': 0}
+    except:
+        return {'pendiente': 0, 'aprobado': 0, 'rechazado': 0, 'total': 0}
 
 
 def listar_solicitudes_x_sede(sede_id):
@@ -205,7 +239,8 @@ def obtener_solicitud_cliente_x_id(p_id):
                         "SELECT `id`, `nombre_cliente`, `apellido_cliente`, "
                         "`tipo_documento`, `numero_documento`, "
                         "`telefono_cliente`, `email_cliente`, "
-                        "`tipo`, `motivo`, `sede_id`, `solicitado_por` "
+                        "`tipo`, `motivo`, `estado`, `observacion_admin`, "
+                        "`sede_id`, `solicitado_por` "
                         "FROM `solicitudes_cliente` WHERE `id` = %s"
                     )
                     cursor.execute(sql, p_id)
